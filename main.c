@@ -55,10 +55,17 @@ const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10
 
 void draw_ground(void){
   static uint8_t i=0;
-  drawbitmap(buffer, 0, 56, gnd+i, 128-i, 8, 1);
-  drawbitmap(buffer, 128-i, 56, gnd, i, 8, 1);
+  int ground_width = 512;
+  if (i < (ground_width - 128)) {
+	drawbitmap(buffer, 0, 56, gnd + i, 128, 8, 1);
+  } else {
+  	drawbitmap(buffer, 0, 56, gnd+i, ground_width-i, 8, 1);
+	drawbitmap(buffer, ground_width-i, 56, gnd, 128-(ground_width-i), 8, 1);
+  }
+// drawbitmap(buffer, 0, 56, gnd+i, 128-i, 8, 1);
+// drawbitmap(buffer, 128-i, 56, gnd, i, 8, 1);
   i++;
-  if(i==128)i=0;
+  if(i==ground_width)i=0;
 }
 
 uint8_t draw_cactus(cacti cactus,uint8_t color){
@@ -103,7 +110,8 @@ void updateWalk(dino* rex){
   if(!(rex->isJumping)){
     rex->steps++;
     if(rex->steps==20){
-      if (rex->sprite==dino3) {
+//    if (rex->sprite==dino3) {
+      if (rex->sprite==runner3) {
 	rex->sprite=runner3;
         //rex->sprite=dino4;
         rex->hasChanged=1;
