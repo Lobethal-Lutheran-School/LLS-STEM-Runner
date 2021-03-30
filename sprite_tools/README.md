@@ -18,11 +18,11 @@ export the image from the GIMP as a C header using the "->file->export as"  menu
 
 name the exported C header "gimp_header.h"
 
-next, this program must be compiled with "gimp_header.h" in the same directory
+next, gimp_header_to_sprite.c must be compiled with "gimp_header.h" in the same directory
 
 gcc gimp_header_to_sprite.c -o gimp_header_to_sprite
 
-next, run the program and export to a file gimp_sprite.h
+next, run the program gimp_header_to_sprite and export to a file gimp_sprite.h
 
 ./gimp_header_to_sprite > gimp_sprite.h
 
@@ -38,7 +38,7 @@ and then run
 
 ./spriteview
 
-to see the sprite rotated 90 degrees CCW in ASCII
+to see the sprite rotated 90 degrees CCW in ASCII, along with existing sprites in sprites_test.h
 
 Background:
 
