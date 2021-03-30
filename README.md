@@ -1,6 +1,8 @@
 # LLS-STEM-Runner
 
-A repository for game code that can be installed on T3 and T4 component testers
+A repository for game code that can be installed on T3 and T4 component testers.
+
+This project is an ideal vehicle for delivering hands on STEM and coding content to students. 
 
 This work builds on the excellent work of https://dragaosemchama.com/en/2017/01/rex/ found at https://github.com/robsoncouto/rex
 
@@ -43,6 +45,7 @@ and these difference have to be reflected in the ST7565 driver code, namely, stl
 
 
 ## Project details
+
 Robson Couto's blog post details how he wrote the original code and ran it on a T3 component tester
 
 English version: http://dragaosemchama.com.br/2017/01/rex/
