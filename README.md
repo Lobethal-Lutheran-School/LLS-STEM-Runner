@@ -15,6 +15,7 @@ Improvements thus far include
  5) fixes to score text justification
  6) fixes to GAME OVER text alignment
  7) shell scripts written to simplify backup and restoration of original component tester firmware
+ 8) simple software debouncing implemented for the button read code 
 
 TODO
  - Further refactoring of the code
@@ -41,7 +42,7 @@ The circuits of the T4v2 and T3 transistor testers differ with respect to the SP
 	SI/SDA PD3  vs PD1
 	CE     PD5  vs PD5 
 
-and these difference have to be reflected in the ST7565 driver code, namely, stlcd.h, for the T4 v2 component tester to work.
+and these differences have to be reflected in the ST7565 driver code, namely, stlcd.h, for the T4 v2 component tester to work.
 
 
 ## Project details
