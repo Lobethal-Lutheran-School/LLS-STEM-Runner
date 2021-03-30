@@ -1,14 +1,16 @@
 gimp_header_to_sprite.c
 
 code to create sprites for Rex-Runner like games using the ST7565-T3 LCD screen
-the sprite to be converted must be exported as an indexed
-c header file from the gimp
+
+the sprite to be converted must be exported as an indexed c header file from the gimp
 
 GIMP instructions:
 
 make the image height a multiple of 8, and the image width a multiple of 8
 
 to alter pencil size in the gimp to one pixel use the "[" / "]" keys
+
+draw the sprite as white pixels on a black background
 
 convert the image to an indexed image with 2 colours using the "->image->mode" menu
 

@@ -13,6 +13,7 @@
 // GIMP instructions:
 // make the image height a multiple of 8, and the image width a multiple of 8
 // to alter pencil size in the gimp to one pixel use the "[" / "]" keys
+// draw the sprite as white pixels on a black background
 // convert the image to an indexed image with 2 colours using the "->image->mode" menu
 // export the image from the GIMP as a C header using the "->file->export as"  menu
 // name the exported C header "gimp_header.h"
