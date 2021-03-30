@@ -37,8 +37,87 @@ int main () {
 	char word, mask;
 	int word_width = 8;
 
+        columns = TEST_PATTERN_COLUMNS;
+	int test_pattern_width = TEST_PATTERN_WIDTH;
+	printf("\n*****************\n");
+        for (i = 0; i < test_pattern_width; i++) {
+                for (j = 0; j < columns; j++) {
+                        int index = i + j*test_pattern_width;
+                        word = ones[index];
+                        for (k = 0; k < 8; k++) {
+                                mask = 1 << k;
+                                pixel = word & mask;
+                                if (pixel) {
+                                        printf("#");
+                                } else {
+                                        printf("-");
+                                }
+                        }
+                        if (j == (columns - 1)) {
+                                printf("\n");
+                        }
+                }
+        }
+	printf("\n*****************\n");
+        for (i = 0; i < test_pattern_width; i++) {
+                for (j = 0; j < columns; j++) {
+                        int index = i + j*test_pattern_width;
+                        word = zeros[index];
+                        for (k = 0; k < 8; k++) {
+                                mask = 1 << k;
+                                pixel = word & mask;
+                                if (pixel) {
+                                        printf("#");
+                                } else {
+                                        printf("-");
+                                }
+                        }
+                        if (j == (columns - 1)) {
+                                printf("\n");
+                        }
+                }
+        }
+	printf("\n*****************\n");
+        for (i = 0; i < test_pattern_width; i++) {
+                for (j = 0; j < columns; j++) {
+                        int index = i + j*test_pattern_width;
+                        word = chess[index];
+                        for (k = 0; k < 8; k++) {
+                                mask = 1 << k;
+                                pixel = word & mask;
+                                if (pixel) {
+                                        printf("#");
+                                } else {
+                                        printf("-");
+                                }
+                        }
+                        if (j == (columns - 1)) {
+                                printf("\n");
+                        }
+                }
+        }
+	printf("\n*****************\n");
+        for (i = 0; i < test_pattern_width; i++) {
+                for (j = 0; j < columns; j++) {
+                        int index = i + j*test_pattern_width;
+                        word = sqr[index];
+                        for (k = 0; k < 8; k++) {
+                                mask = 1 << k;
+                                pixel = word & mask;
+                                if (pixel) {
+                                        printf("#");
+                                } else {
+                                        printf("-");
+                                }
+                        }
+                        if (j == (columns - 1)) {
+                                printf("\n");
+                        }
+                }
+        }
+        printf("\n*****************\n");
         columns = DINO1_GLCD_HEIGHT/word_width;
-        for (i = 0; i < DINO1_GLCD_WIDTH; i++) {
+        for (i = DINO1_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*DINO1_GLCD_WIDTH;
                         word = dino1[index];
@@ -56,9 +135,9 @@ int main () {
                         }
                 }
         }
-
+        printf("\n*****************\n");
         columns = DINO2_GLCD_HEIGHT/word_width;
-        for (i = 0; i < DINO2_GLCD_WIDTH; i++) {
+        for (i = DINO2_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*DINO2_GLCD_WIDTH;
                         word = dino2[index];
@@ -76,9 +155,9 @@ int main () {
                         }
                 }
         }
-
+        printf("\n*****************\n");
         columns = DINO3_GLCD_HEIGHT/word_width;
-        for (i = 0; i < DINO3_GLCD_WIDTH; i++) {
+        for (i = DINO3_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*DINO3_GLCD_WIDTH;
                         word = dino3[index];
@@ -96,66 +175,9 @@ int main () {
                         }
                 }
         }
-
-
-	for (i = 0; i < 16*8; i++) {
-                word = chess[i/word_width];
-                mask = 1 << (i%word_width);
-                pixel = word & mask;
-                if (pixel) {
-                        printf("#");
-                } else {
-                        printf("-");
-                }
-                if (!((i+1)%8)) {
-                        printf("\n");
-                }
-        }
-	printf("\n");
-        for (i = 0; i < 16*8; i++) {
-                word = zeros[i/word_width];
-                mask = 1 << (i%word_width);
-                pixel = word & mask;
-                if (pixel) {
-                        printf("#");
-                } else {
-                        printf("-");
-                }
-                if (!((i+1)%8)) {
-                        printf("\n");
-                }
-	}
-	printf("\n");
-        for (i = 0; i < 16*8; i++) {
-                word = sqr[i/word_width];
-                mask = 1 << (i%word_width);
-                pixel = word & mask;
-                if (pixel) {
-                        printf("#");
-                } else {
-                        printf("-");
-                }
-                if (!((i+1)%8)) {
-                        printf("\n");
-                }
-        }
-	printf("\n");
-        for (i = 0; i < 16*8; i++) {
-                word = ones[i/word_width];
-                mask = 1 << (i%word_width);
-                pixel = word & mask;
-                if (pixel) {
-                        printf("#");
-                } else {
-                        printf("-");
-                }
-                if (!((i+1)%8)) {
-                        printf("\n");
-                }
-        }
-	printf("\n");
+        printf("\n*****************\n");
         columns = CACTS1_GLCD_HEIGHT/word_width;
-        for (i = 0; i < CACTS1_GLCD_WIDTH; i++) {
+        for (i = CACTS1_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*CACTS1_GLCD_WIDTH;
                         word = cacts1[index];
@@ -173,10 +195,9 @@ int main () {
                         }
                 }
         }
-
-	printf("\n");
+        printf("\n*****************\n");
         columns = CACTS2_GLCD_HEIGHT/word_width;
-        for (i = 0; i < CACTS2_GLCD_WIDTH; i++) {
+        for (i = CACTS2_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*CACTS2_GLCD_WIDTH;
                         word = cacts2[index];
@@ -194,10 +215,9 @@ int main () {
                         }
                 }
         }
-
-        printf("\n");
+        printf("\n*****************\n");
         columns = CACTS3_GLCD_HEIGHT/word_width;
-        for (i = 0; i < CACTS3_GLCD_WIDTH; i++) {
+        for (i = CACTS3_GLCD_WIDTH -1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*CACTS3_GLCD_WIDTH;
                         word = cacts3[index];
@@ -215,10 +235,9 @@ int main () {
                         }
                 }
         }
-        
-        printf("\n");
+        printf("\n*****************\n"); 
         columns = CACTS4_GLCD_HEIGHT/word_width;
-        for (i = 0; i < CACTS4_GLCD_WIDTH; i++) {
+        for (i = CACTS4_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*CACTS4_GLCD_WIDTH;
                         word = cacts4[index];
@@ -236,9 +255,9 @@ int main () {
                         }
                 }
         }
-        printf("\n");
+        printf("\n*****************\n");
         columns = CACTS5_GLCD_HEIGHT/word_width;
-        for (i = 0; i < CACTS5_GLCD_WIDTH; i++) {
+        for (i = CACTS5_GLCD_WIDTH - 1; i >= 0; i--) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*CACTS5_GLCD_WIDTH;
                         word = cacts5[index];
@@ -299,7 +318,6 @@ int main () {
         printf("\n*****************\n");
         columns = GIMP_HEIGHT/word_width;
         for (i = GIMP_WIDTH - 1; i >= 0; i--) {
-//      for (i = 0; i < CACTUSB1_GLCD_WIDTH; i++) {
                 for (j = 0; j < columns; j++) {
                         int index = i + j*GIMP_WIDTH;
                         word = gimp[index];

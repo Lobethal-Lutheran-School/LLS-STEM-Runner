@@ -1,6 +1,8 @@
 #ifndef SPRITES_H
 #define SPRITES_H
 
+#define TEST_PATTERN_WIDTH 8
+#define TEST_PATTERN_COLUMNS 2
 
 const static char zeros[]={
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
