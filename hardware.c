@@ -1,3 +1,10 @@
+// 
+// Copyright 2017 Robson Couto
+// Copyright 2021 Erich Heinzle
+//
+// Licence GPL v2 
+//
+
 #include <avr/io.h>
 #include <avr/eeprom.h>
 #include <avr/wdt.h>
@@ -6,7 +13,6 @@
 
 #include "hardware.h"
 #include "ST7565-T3/c/stlcd.h"
-
 
 void init_hardware(void){
   //DDRC&=~(1<<PIN3);
@@ -34,9 +40,8 @@ void init_hardware(void){
   PORTB&=~(1<<0);
 
   init_timer();
-
-
 }
+
 uint16_t get_adc(uint8_t channel){
   ADMUX&=0xF0;
   ADMUX|=channel;
@@ -44,26 +49,24 @@ uint16_t get_adc(uint8_t channel){
   while(ADCSRA & (1<<ADSC));
   return (ADC);
 }
+
 uint8_t get_rand(uint8_t max){
   srand(get_adc(2));
   uint8_t randNumber;
   randNumber=rand()%max;
   return randNumber;
 }
+
 uint8_t button_pressed(void){
-//  uint8_t press=0;
-//  press=!(PINB&(1<<4));
-//  press|=!(PIND&(1<<7));
-//  return press;
     return !(PINB&(1<<4)) || !(PIND&(1<<7));
 }
-
 
 uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 
 void get_mcusr(void) \
   __attribute__((naked)) \
   __attribute__((section(".init3")));
+
 void get_mcusr(void)
 {
   mcusr_mirror = MCUSR;
@@ -87,6 +90,7 @@ void init_timer(void){
   TCNT0=0; //start from zero
   TCCR0B=(0 << CS01) | (1 << CS00); //using main clock
 }
+
 uint8_t get_rand2(void){
   return TCNT0;
 }

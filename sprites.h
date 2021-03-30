@@ -1,3 +1,10 @@
+// 
+// Copyright 2017 Robson Couto
+// Copyright 2021 Erich Heinzle
+//
+// Licence GPL v2 
+//
+
 #ifndef SPRITES_H
 #define SPRITES_H
 

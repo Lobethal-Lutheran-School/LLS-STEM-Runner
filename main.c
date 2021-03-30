@@ -1,3 +1,9 @@
+// 
+// Copyright 2017 Robson Couto
+// Copyright 2021 Erich Heinzle
+//
+// Licence GPL v2 
+//
 
 #define F_CPU 8000000UL
 
@@ -209,7 +215,7 @@ int main(void){
   highscore=get_score();
   if (highscore == 0xFFFF) {
 	  highscore = 0;
-  }  //FIXME make the score zero when first time (Not used memory=0xFF)
+  } 
 
   uint8_t bump=0; //collision between dino and catus kept here
   clear_screen();

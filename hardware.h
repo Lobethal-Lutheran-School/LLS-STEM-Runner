@@ -1,3 +1,9 @@
+// 
+// Copyright 2017 Robson Couto
+//
+// Licence GPL v2 
+//
+
 #ifndef HARDWARE_H
 #define HARDWARE_H
 #define SCORE_LOCATION 0x3FE
