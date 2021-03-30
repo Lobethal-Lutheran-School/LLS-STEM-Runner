@@ -32,12 +32,12 @@ Makefiles in the various firmware directories give clues to the different pinout
 
 The circuits of the T4v2 and T3 transistor testers differ with respect to the SPI wiring to the ST7565 LCD
 
-       T4v2 vs T3
-reset  PD0  vs PD4
-SCL    PD2  vs PD2
-RS/SW  PD1  vs PD3
-SI/SDA PD3  vs PD1
-CE     PD5  vs PD5 
+		T4v2 vs T3
+	reset  PD0  vs PD4
+	SCL    PD2  vs PD2
+	RS/SW  PD1  vs PD3
+	SI/SDA PD3  vs PD1
+	CE     PD5  vs PD5 
 
 and these difference have to be reflected in the ST7565 driver code, namely, stlcd.h, for the T4 v2 component tester to work.
 
