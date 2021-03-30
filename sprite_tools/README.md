@@ -40,6 +40,12 @@ and then run
 
 to see the sprite rotated 90 degrees CCW in ASCII, along with existing sprites in sprites_test.h
 
+ASCII sprite text saves as something.asc can be converted to a pgm bitmap with
+
+asciitopgm height width something.asc > something.pgm
+
+which can then be opened with the gimp
+
 Background:
 
 the sprites are encoded as 8 pixel vertical stripes, going from left to right
