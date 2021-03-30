@@ -16,7 +16,20 @@ convert the image to an indexed image with 2 colours using the "->image->mode" m
 
 export the image from the GIMP as a C header using the "->file->export as"  menu
 
-name the exported C header "gimp_header.h"
+name the exported C header "something.h"
+
+the simplest way to turn this into a sprite for use in the runner game is to run
+
+./convert_gimp_header.sh something.h 
+
+this will produce a sprite header file called
+
+gimp_sprite.h
+
+which will then be displayed in the terminal as ASCII
+
+
+If you want to do it step by step, assuming you have first exported a C header from the gimp called "gimp_header.h"
 
 next, gimp_header_to_sprite.c must be compiled with "gimp_header.h" in the same directory
 
