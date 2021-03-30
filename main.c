@@ -7,12 +7,13 @@
 
 #define F_CPU 8000000UL
 
-#include<avr/io.h>
+#include <avr/io.h>
 #include <avr/wdt.h>
-#include<util/delay.h>
+#include <util/delay.h>
 #include <string.h>
-#include<stdlib.h>
-#include"sprites.h"
+#include <stdlib.h>
+#include "obstacle_sprites.h"
+#include "runner_sprites.h"
 #include "hardware.h"
 #include "ST7565-T3/c/stlcd.h"
 #include "ST7565-T3/c/glcd.h"
@@ -103,11 +104,13 @@ void updateWalk(dino* rex){
     rex->steps++;
     if(rex->steps==20){
       if (rex->sprite==dino3) {
-        rex->sprite=dino4;
+	rex->sprite=runner3;
+        //rex->sprite=dino4;
         rex->hasChanged=1;
         Rex2screen(*rex, 0);
       }else{
-        rex->sprite=dino3;
+	rex->sprite=runner2;
+        //rex->sprite=dino3;
         rex->hasChanged=1;
         Rex2screen(*rex, 0);
       }
@@ -145,7 +148,8 @@ void create_dino(dino* rex){
   rex->y = 40;
   rex->w = 20;
   rex->h = 24;
-  rex->sprite=dino3;
+  rex->sprite=runner1;
+  //rex->sprite=dino3;
   rex->isJumping=0;
   rex->steps=0;
   rex->hasChanged=1;
