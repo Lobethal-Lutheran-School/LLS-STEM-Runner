@@ -44,6 +44,13 @@ The circuits of the T4v2 and T3 transistor testers differ with respect to the SP
 
 and these differences have to be reflected in the ST7565 driver code, namely, stlcd.h, for the T4 v2 component tester to work.
 
+## Custom sprites
+
+Custom sprites can be made to replace the T-Rex, ground, or obstacles
+
+Tools for this are in sprite_tools
+
+It is recommended that sprites of the same height and width are used until the code has been refactored further. Currently, the runner_sprites.h file has a dog option enabled, and the T-Rex commented out.
 
 ## Project details
 
