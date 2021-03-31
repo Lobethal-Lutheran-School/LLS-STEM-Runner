@@ -54,7 +54,7 @@ const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10
 
 
 void draw_ground(void){
-  static uint8_t i=0;
+  static uint16_t i=0; // and then the one byte variable said... roll over... roll over...
   int ground_width = 512;
   if (i < (ground_width - 128)) {
 	drawbitmap(buffer, 0, 56, gnd + i, 128, 8, 1);
@@ -62,8 +62,6 @@ void draw_ground(void){
   	drawbitmap(buffer, 0, 56, gnd+i, ground_width-i, 8, 1);
 	drawbitmap(buffer, ground_width-i, 56, gnd, 128-(ground_width-i), 8, 1);
   }
-// drawbitmap(buffer, 0, 56, gnd+i, 128-i, 8, 1);
-// drawbitmap(buffer, 128-i, 56, gnd, i, 8, 1);
   i++;
   if(i==ground_width)i=0;
 }
