@@ -16,6 +16,7 @@ Improvements thus far include
  6) fixes to GAME OVER text alignment
  7) shell scripts written to simplify backup and restoration of original component tester firmware
  8) simple software debouncing implemented for the button read code 
+ 9) the full width of 512 bit wide ground sprites now scrolls
 
 TODO
  - Further refactoring of the code
