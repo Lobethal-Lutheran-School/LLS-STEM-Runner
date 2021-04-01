@@ -195,7 +195,7 @@ void draw_highscore(uint16_t high){
 }
 
 
-#define MAX_CAC 3
+#define MAX_OBSTACLES 3
 
 void create_obstacle(obstacle_t* cactus);
 int main(void){
@@ -222,7 +222,7 @@ int main(void){
   create_runner(&runner);
   int button_sense = 0;
 
-  obstacle_t cac[MAX_CAC];
+  obstacle_t cac[MAX_OBSTACLES];
   uint8_t nof_cacti=0; //current number of cacti on screen
   uint8_t tail=0;//the position of the new cactus on the ring
   uint8_t frames2nxtCac=0; //frames to next cactus. This is a delay to the creation of
@@ -239,7 +239,7 @@ int main(void){
   clear_screen();
   clear_buffer(buffer);
 
-  for(int j=0;j<MAX_CAC;j++){
+  for(int j=0;j<MAX_OBSTACLES;j++){
       kill_obstacle(&cac[j]);
   }
   draw_highscore(highscore);//only time this is written to the screen
@@ -269,7 +269,7 @@ int main(void){
     updateJump(&runner); //Update the runner position
     draw_runner(&runner,1);
 
-    if(nof_cacti<=MAX_CAC){ //Checks if there are MAX_CAC cacti on screen already
+    if(nof_cacti<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES cacti on screen already
       if((!cac[tail].alive)&(frames2nxtCac==0)){
         if(get_rand(16)==0){//"1 in 16 chance" No, I know
           //If the previous conditions are met, create a new cactus and delay creation of new cacti
@@ -279,7 +279,7 @@ int main(void){
           frames2nxtCac=60;//can be changed
         }
       }
-      if (tail==MAX_CAC){
+      if (tail==MAX_OBSTACLES){
         tail=0;
       }
     }
@@ -291,7 +291,7 @@ int main(void){
     }
 
     //Draw cacti to the buffer, checks collision, and write them to the LCD
-    for(int j=0;j<MAX_CAC;j++){
+    for(int j=0;j<MAX_OBSTACLES;j++){
       if(cac[j].alive){
         if(cac[j].x<1){
           kill_obstacle(&cac[j]);
@@ -325,7 +325,7 @@ int main(void){
     if(frames2nxtCac)frames2nxtCac--;//Each frame decreases delay for new catcus
 
     //Erase cacti from LCD screen
-    for(int j=0;j<MAX_CAC;j++){
+    for(int j=0;j<MAX_OBSTACLES;j++){
       if(cac[j].alive){
         draw_obstacle(&cac[j],0);
         write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);
