@@ -39,7 +39,7 @@ typedef struct  {
    uint8_t h;
    const uint8_t* sprite;
    uint8_t alive;
-}cacti;
+} obstacle_t;
 
 struct ground {
    uint8_t x;
@@ -66,7 +66,7 @@ void draw_ground(void){
   if(i==ground_width)i=0;
 }
 
-uint8_t draw_cactus(cacti* cactus,uint8_t color){
+uint8_t draw_cactus(obstacle_t* cactus,uint8_t color){
   return drawbitmap2(buffer, cactus->x, cactus->y, cactus->sprite, cactus->w, cactus->h, color);
 }
 
@@ -137,7 +137,7 @@ const uint8_t* cactsmall[6];
 const uint8_t* cactbig[6];
 
 
-void create_cactus(cacti* cactus){
+void create_cactus(obstacle_t* cactus){
   cactus->x=127;// Fixed (It cant be more than 127)
   cactus->alive=0xFF;
   if(get_rand(2)%2==0){//gets the type of the cactus(big or small)
@@ -153,7 +153,7 @@ void create_cactus(cacti* cactus){
   }
 }
 
-void kill_cactus(cacti* cactus){
+void kill_cactus(obstacle_t* cactus){
   cactus->alive=0;
 }
 
@@ -197,7 +197,7 @@ void draw_highscore(uint16_t high){
 
 #define MAX_CAC 3
 
-void create_cactus(cacti* cactus);
+void create_cactus(obstacle_t* cactus);
 int main(void){
 
 
@@ -222,7 +222,7 @@ int main(void){
   create_runner(&runner);
   int button_sense = 0;
 
-  cacti cac[MAX_CAC];
+  obstacle_t cac[MAX_CAC];
   uint8_t nof_cacti=0; //current number of cacti on screen
   uint8_t tail=0;//the position of the new cactus on the ring
   uint8_t frames2nxtCac=0; //frames to next cactus. This is a delay to the creation of
