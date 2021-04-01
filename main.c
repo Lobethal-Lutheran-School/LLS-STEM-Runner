@@ -66,7 +66,7 @@ void draw_ground(void){
   if(i==ground_width)i=0;
 }
 
-uint8_t draw_cactus(obstacle_t* cactus,uint8_t color){
+uint8_t draw_obstacle(obstacle_t* cactus,uint8_t color){
   return drawbitmap2(buffer, cactus->x, cactus->y, cactus->sprite, cactus->w, cactus->h, color);
 }
 
@@ -137,7 +137,7 @@ const uint8_t* cactsmall[6];
 const uint8_t* cactbig[6];
 
 
-void create_cactus(obstacle_t* cactus){
+void create_obstacle(obstacle_t* cactus){
   cactus->x=127;// Fixed (It cant be more than 127)
   cactus->alive=0xFF;
   if(get_rand(2)%2==0){//gets the type of the cactus(big or small)
@@ -153,7 +153,7 @@ void create_cactus(obstacle_t* cactus){
   }
 }
 
-void kill_cactus(obstacle_t* cactus){
+void kill_obstacle(obstacle_t* cactus){
   cactus->alive=0;
 }
 
@@ -197,7 +197,7 @@ void draw_highscore(uint16_t high){
 
 #define MAX_CAC 3
 
-void create_cactus(obstacle_t* cactus);
+void create_obstacle(obstacle_t* cactus);
 int main(void){
 
 
@@ -240,7 +240,7 @@ int main(void){
   clear_buffer(buffer);
 
   for(int j=0;j<MAX_CAC;j++){
-      kill_cactus(&cac[j]);
+      kill_obstacle(&cac[j]);
   }
   draw_highscore(highscore);//only time this is written to the screen
   draw_score(score);
@@ -273,7 +273,7 @@ int main(void){
       if((!cac[tail].alive)&(frames2nxtCac==0)){
         if(get_rand(16)==0){//"1 in 16 chance" No, I know
           //If the previous conditions are met, create a new cactus and delay creation of new cacti
-          create_cactus(&cac[tail]);
+          create_obstacle(&cac[tail]);
           tail++;
           nof_cacti++;
           frames2nxtCac=60;//can be changed
@@ -294,14 +294,14 @@ int main(void){
     for(int j=0;j<MAX_CAC;j++){
       if(cac[j].alive){
         if(cac[j].x<1){
-          kill_cactus(&cac[j]);
+          kill_obstacle(&cac[j]);
           score++;
           nof_cacti--;
-          draw_cactus(&cac[j],0);
+          draw_obstacle(&cac[j],0);
           draw_score(score);//The score is also drawn to the LCD only when changed
         }else{
           cac[j].x--;
-          bump|=draw_cactus(&cac[j],1);//draw the cati to the buffer and gets a possible collision
+          bump|=draw_obstacle(&cac[j],1);//draw the cati to the buffer and gets a possible collision
         }
         write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);//draw the cati to the LCD
       }
@@ -327,7 +327,7 @@ int main(void){
     //Erase cacti from LCD screen
     for(int j=0;j<MAX_CAC;j++){
       if(cac[j].alive){
-        draw_cactus(&cac[j],0);
+        draw_obstacle(&cac[j],0);
         write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);
       }
     }
