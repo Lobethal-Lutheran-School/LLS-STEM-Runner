@@ -22,14 +22,14 @@
 uint8_t buffer[128*64/8];
 
 typedef struct {
-  uint8_t isJumping;
+  uint8_t is_jumping;
   uint8_t x;
   uint8_t y;
   uint8_t w;
   uint8_t h;
   const uint8_t* sprite;
   uint8_t steps;
-  uint8_t hasChanged;
+  uint8_t has_changed;
 } runner_t;
 
 typedef struct  {
@@ -66,8 +66,8 @@ void draw_ground(void){
   if(i==ground_width)i=0;
 }
 
-uint8_t draw_obstacle(obstacle_t* cactus,uint8_t color){
-  return drawbitmap2(buffer, cactus->x, cactus->y, cactus->sprite, cactus->w, cactus->h, color);
+uint8_t draw_obstacle(obstacle_t* obstacle,uint8_t color){
+  return drawbitmap2(buffer, obstacle->x, obstacle->y, obstacle->sprite, obstacle->w, obstacle->h, color);
 }
 
 uint8_t draw_runner(runner_t* runner, uint8_t color){ // use pointers
@@ -80,26 +80,26 @@ void runner_to_screen(runner_t* runner, uint8_t color){
 
 void update_jump(runner_t* runner){
   static uint8_t index=0;
-  if(runner->isJumping){
-    if(runner->isJumping>31){
+  if(runner->is_jumping){
+    if(runner->is_jumping>31){
       if(points[index]!=runner->y){
-        runner->hasChanged=1;
+        runner->has_changed=1;
         runner_to_screen(runner, 0);
       }
       runner->y=points[index];
-      runner->isJumping--;
+      runner->is_jumping--;
       index++;
     }else{
       index--;
       if(points[index]!=runner->y){
-        runner->hasChanged=1;
+        runner->has_changed=1;
         runner_to_screen(runner, 0);
       }
       runner->y=points[index];
-      runner->isJumping--;
-      if(runner->isJumping==0) {
+      runner->is_jumping--;
+      if(runner->is_jumping==0) {
 	runner->y=40;
-	runner->hasChanged=1;
+	runner->has_changed=1;
       }
     }
   }else{
@@ -108,24 +108,24 @@ void update_jump(runner_t* runner){
 }
 
 void update_walk(runner_t* runner){
-  if(!(runner->isJumping)){
+  if(!(runner->is_jumping)){
     runner->steps++;
     if(!runner->steps%8){
       //    if (rex->sprite==dino3) {
       if (runner->sprite==runner1) {
 	runner->sprite=runner2;
         //rex->sprite=dino4;
-        runner->hasChanged=1;
+        runner->has_changed=1;
         runner_to_screen(runner, 0);
       } else if (runner->sprite==runner2) {
         runner->sprite=runner3;
         //rex->sprite=dino4;
-        runner->hasChanged=1;
+        runner->has_changed=1;
         runner_to_screen(runner, 0); 
       } else {
 	runner->sprite=runner1;
         //rex->sprite=dino3;
-        runner->hasChanged=1;
+        runner->has_changed=1;
         runner_to_screen(runner, 0);
       }
       //rex->steps=0;
@@ -133,28 +133,28 @@ void update_walk(runner_t* runner){
   }
 }
 
-const uint8_t* cactsmall[6];
-const uint8_t* cactbig[6];
+const uint8_t* obstacles_small[6];
+const uint8_t* obstacles_big[6];
 
 
-void create_obstacle(obstacle_t* cactus){
-  cactus->x=127;// Fixed (It cant be more than 127)
-  cactus->alive=0xFF;
-  if(get_rand(2)%2==0){//gets the type of the cactus(big or small)
-    cactus->y=48;
-    cactus->w=8;
-    cactus->h=16;
-    cactus->sprite=cactsmall[get_rand(5)];
+void create_obstacle(obstacle_t* obstacle){
+  obstacle->x=127;// Fixed (It cant be more than 127)
+  obstacle->alive=0xFF;
+  if(get_rand(2)%2==0){//gets the type of the obstacle(big or small)
+    obstacle->y=48;
+    obstacle->w=8;
+    obstacle->h=16;
+    obstacle->sprite=obstacles_small[get_rand(5)];
   }else{
-    cactus->y=40;
-    cactus->w=12;
-    cactus->h=24;
-    cactus->sprite=cactbig[get_rand(5)];
+    obstacle->y=40;
+    obstacle->w=12;
+    obstacle->h=24;
+    obstacle->sprite=obstacles_big[get_rand(5)];
   }
 }
 
-void kill_obstacle(obstacle_t* cactus){
-  cactus->alive=0;
+void kill_obstacle(obstacle_t* obstacle){
+  obstacle->alive=0;
 }
 
 void create_runner(runner_t* runner){
@@ -163,9 +163,9 @@ void create_runner(runner_t* runner){
   runner->w = 20;
   runner->h = 24;
   runner->sprite=runner1;
-  runner->isJumping=0;
+  runner->is_jumping=0;
   runner->steps=0;
-  runner->hasChanged=1;
+  runner->has_changed=1;
 }
 
 void draw_score(uint16_t score){
@@ -196,36 +196,36 @@ void draw_highscore(uint16_t high){
 
 #define MAX_OBSTACLES 3
 
-void create_obstacle(obstacle_t* cactus);
+void create_obstacle(obstacle_t* obstacle);
 int main(void){
 
 
   //Initise the arrays that keep the sprite addresses
   //One of these values in gotten randomly at cacti creation
-  cactsmall[0]=cacts1;
-  cactsmall[1]=cacts2;
-  cactsmall[2]=cacts3;
-  cactsmall[3]=cacts4;
-  cactsmall[4]=cacts5;
-  cactsmall[5]=cacts6;
+  obstacles_small[0]=cacts1;
+  obstacles_small[1]=cacts2;
+  obstacles_small[2]=cacts3;
+  obstacles_small[3]=cacts4;
+  obstacles_small[4]=cacts5;
+  obstacles_small[5]=cacts6;
 
 
-  cactbig[0]=cactusb1;
-  cactbig[1]=cactusb2;
-  cactbig[2]=cactusb3;
-  cactbig[3]=cactusb4;
-  cactbig[4]=cactusb5;
-  cactbig[5]=cactusb6;
+  obstacles_big[0]=cactusb1;
+  obstacles_big[1]=cactusb2;
+  obstacles_big[2]=cactusb3;
+  obstacles_big[3]=cactusb4;
+  obstacles_big[4]=cactusb5;
+  obstacles_big[5]=cactusb6;
 
   runner_t runner;
   create_runner(&runner);
   int button_sense = 0;
 
-  obstacle_t cac[MAX_OBSTACLES];
-  uint8_t nof_cacti=0; //current number of cacti on screen
-  uint8_t tail=0;//the position of the new cactus on the ring
-  uint8_t frames2nxtCac=0; //frames to next cactus. This is a delay to the creation of
-                           //the next cactus. So the Rex has some space to land
+  obstacle_t obstacles[MAX_OBSTACLES];
+  uint8_t n_of_obstacles=0; //current number of cacti on screen
+  uint8_t tail=0;//the position of the new obstacle on the ring
+  uint8_t frames_to_next_obstacle=0; //frames to next obstacle. This is a delay to the creation of
+                           //the next obstacle. So the runner has some space to land
   uint16_t highscore=0,score=0;
 
   init_hardware(); //low level atmega stuff (PORTS, ACD, etc)
@@ -239,7 +239,7 @@ int main(void){
   clear_buffer(buffer);
 
   for(int j=0;j<MAX_OBSTACLES;j++){
-    kill_obstacle(&cac[j]);
+    kill_obstacle(&obstacles[j]);
   }
   draw_highscore(highscore);//only time this is written to the screen
   draw_score(score);
@@ -260,22 +260,22 @@ int main(void){
     _delay_us(500); // simple attempt to debounce
     clear_buffer(buffer);//The memory is cleared, but not the LCD
     if(button_sense || button_pressed()){
-      if(!(runner.isJumping)){
-	runner.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
+      if(!(runner.is_jumping)){
+	runner.is_jumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
       }
     }
     update_walk(&runner); //Updates runner sprite (which leg touches the ground)
     update_jump(&runner); //Update the runner position
     draw_runner(&runner,1);
 
-    if(nof_cacti<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES cacti on screen already
-      if((!cac[tail].alive)&(frames2nxtCac==0)){
+    if(n_of_obstacles<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES cacti on screen already
+      if((!obstacles[tail].alive)&(frames_to_next_obstacle==0)){
         if(get_rand(16)==0){//"1 in 16 chance" No, I know
-          //If the previous conditions are met, create a new cactus and delay creation of new cacti
-          create_obstacle(&cac[tail]);
+          //If the previous conditions are met, create a new obstacle and delay creation of new cacti
+          create_obstacle(&obstacles[tail]);
           tail++;
-          nof_cacti++;
-          frames2nxtCac=60;//can be changed
+          n_of_obstacles++;
+          frames_to_next_obstacle=60;//can be changed
         }
       }
       if (tail==MAX_OBSTACLES){
@@ -284,25 +284,25 @@ int main(void){
     }
 
     //Only writes the runner to the LCD when it has changed position or sprite
-    if(runner.hasChanged){
+    if(runner.has_changed){
       write_part(buffer,runner.x,runner.y,runner.w,runner.h);
-      runner.hasChanged=0;
+      runner.has_changed=0;
     }
 
     //Draw cacti to the buffer, checks collision, and write them to the LCD
     for(int j=0;j<MAX_OBSTACLES;j++){
-      if(cac[j].alive){
-        if(cac[j].x<1){
-          kill_obstacle(&cac[j]);
+      if(obstacles[j].alive){
+        if(obstacles[j].x<1){
+          kill_obstacle(&obstacles[j]);
           score++;
-          nof_cacti--;
-          draw_obstacle(&cac[j],0);
+          n_of_obstacles--;
+          draw_obstacle(&obstacles[j],0);
           draw_score(score);//The score is also drawn to the LCD only when changed
         }else{
-          cac[j].x--;
-          bump|=draw_obstacle(&cac[j],1);//draw the cati to the buffer and gets a possible collision
+          obstacles[j].x--;
+          bump|=draw_obstacle(&obstacles[j],1);//draw the cati to the buffer and gets a possible collision
         }
-        write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);//draw the cati to the LCD
+        write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);//draw the cati to the LCD
       }
     }
 
@@ -321,13 +321,13 @@ int main(void){
       }
     }
 
-    if(frames2nxtCac)frames2nxtCac--;//Each frame decreases delay for new catcus
+    if(frames_to_next_obstacle)frames_to_next_obstacle--;//Each frame decreases delay for new catcus
 
     //Erase cacti from LCD screen
     for(int j=0;j<MAX_OBSTACLES;j++){
-      if(cac[j].alive){
-        draw_obstacle(&cac[j],0);
-        write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);
+      if(obstacles[j].alive){
+        draw_obstacle(&obstacles[j],0);
+        write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);
       }
     }
   }
