@@ -100,6 +100,7 @@ void update_jump(runner_t* runner){
       if(runner->is_jumping==0) {
 	runner->y=40;
 	runner->has_changed=1;
+	runner->steps=0xFF; // trigger sprite change on subsequent update_walk
       }
     }
   }else{
@@ -110,25 +111,20 @@ void update_jump(runner_t* runner){
 void update_walk(runner_t* runner){
   if(!(runner->is_jumping)){
     runner->steps++;
-    if(!runner->steps%8){
-      //    if (rex->sprite==dino3) {
+    if(!((runner->steps)%4)){
       if (runner->sprite==runner1) {
 	runner->sprite=runner2;
-        //rex->sprite=dino4;
         runner->has_changed=1;
         runner_to_screen(runner, 0);
       } else if (runner->sprite==runner2) {
         runner->sprite=runner3;
-        //rex->sprite=dino4;
         runner->has_changed=1;
         runner_to_screen(runner, 0); 
       } else {
 	runner->sprite=runner1;
-        //rex->sprite=dino3;
         runner->has_changed=1;
         runner_to_screen(runner, 0);
       }
-      //rex->steps=0;
     }
   }
 }
@@ -201,7 +197,7 @@ int main(void){
 
 
   //Initise the arrays that keep the sprite addresses
-  //One of these values in gotten randomly at cacti creation
+  //One of these values in gotten randomly at obstacle creation
   obstacles_small[0]=cacts1;
   obstacles_small[1]=cacts2;
   obstacles_small[2]=cacts3;
@@ -222,7 +218,7 @@ int main(void){
   int button_sense = 0;
 
   obstacle_t obstacles[MAX_OBSTACLES];
-  uint8_t n_of_obstacles=0; //current number of cacti on screen
+  uint8_t n_of_obstacles=0; //current number of obstacles on screen
   uint8_t tail=0;//the position of the new obstacle on the ring
   uint8_t frames_to_next_obstacle=0; //frames to next obstacle. This is a delay to the creation of
                            //the next obstacle. So the runner has some space to land
@@ -268,10 +264,10 @@ int main(void){
     update_jump(&runner); //Update the runner position
     draw_runner(&runner,1);
 
-    if(n_of_obstacles<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES cacti on screen already
+    if(n_of_obstacles<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES obstacles on screen already
       if((!obstacles[tail].alive)&(frames_to_next_obstacle==0)){
         if(get_rand(16)==0){//"1 in 16 chance" No, I know
-          //If the previous conditions are met, create a new obstacle and delay creation of new cacti
+          //If the previous conditions are met, create a new obstacle and delay creation of new obstacle
           create_obstacle(&obstacles[tail]);
           tail++;
           n_of_obstacles++;
@@ -289,7 +285,7 @@ int main(void){
       runner.has_changed=0;
     }
 
-    //Draw cacti to the buffer, checks collision, and write them to the LCD
+    //Draw obstacle to the buffer, checks collision, and write them to the LCD
     for(int j=0;j<MAX_OBSTACLES;j++){
       if(obstacles[j].alive){
         if(obstacles[j].x<1){
@@ -323,7 +319,7 @@ int main(void){
 
     if(frames_to_next_obstacle)frames_to_next_obstacle--;//Each frame decreases delay for new catcus
 
-    //Erase cacti from LCD screen
+    //Erase obstacle from LCD screen
     for(int j=0;j<MAX_OBSTACLES;j++){
       if(obstacles[j].alive){
         draw_obstacle(&obstacles[j],0);
