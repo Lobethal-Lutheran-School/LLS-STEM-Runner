@@ -73,18 +73,18 @@ uint8_t draw_obstacle(obstacle_t* cactus,uint8_t color){
 uint8_t draw_runner(runner_t* runner, uint8_t color){ // use pointers
     return drawbitmap2(buffer, runner->x, runner->y, runner->sprite, 20, 24, color);
 }
-void runner2screen(runner_t* runner, uint8_t color){
+void runner_to_screen(runner_t* runner, uint8_t color){
   draw_runner(runner,color);
   write_part(buffer,runner->x,runner->y,runner->w,runner->h);
 }
 
-void updateJump(runner_t* runner){
+void update_jump(runner_t* runner){
   static uint8_t index=0;
   if(runner->isJumping){
     if(runner->isJumping>31){
       if(points[index]!=runner->y){
         runner->hasChanged=1;
-        runner2screen(runner, 0);
+        runner_to_screen(runner, 0);
       }
       runner->y=points[index];
       runner->isJumping--;
@@ -93,7 +93,7 @@ void updateJump(runner_t* runner){
       index--;
       if(points[index]!=runner->y){
         runner->hasChanged=1;
-        runner2screen(runner, 0);
+        runner_to_screen(runner, 0);
       }
       runner->y=points[index];
       runner->isJumping--;
@@ -107,7 +107,7 @@ void updateJump(runner_t* runner){
   }
 }
 
-void updateWalk(runner_t* runner){
+void update_walk(runner_t* runner){
   if(!(runner->isJumping)){
     runner->steps++;
     if(!runner->steps%8){
@@ -116,17 +116,17 @@ void updateWalk(runner_t* runner){
 	runner->sprite=runner2;
         //rex->sprite=dino4;
         runner->hasChanged=1;
-        runner2screen(runner, 0);
+        runner_to_screen(runner, 0);
       } else if (runner->sprite==runner2) {
         runner->sprite=runner3;
         //rex->sprite=dino4;
         runner->hasChanged=1;
-        runner2screen(runner, 0); 
+        runner_to_screen(runner, 0); 
       } else {
 	runner->sprite=runner1;
         //rex->sprite=dino3;
         runner->hasChanged=1;
-        runner2screen(runner, 0);
+        runner_to_screen(runner, 0);
       }
       //rex->steps=0;
     }
@@ -265,8 +265,8 @@ int main(void){
          runner.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
        }
     }
-    updateWalk(&runner); //Updates runner sprite (which leg touches the ground)
-    updateJump(&runner); //Update the runner position
+    update_walk(&runner); //Updates runner sprite (which leg touches the ground)
+    update_jump(&runner); //Update the runner position
     draw_runner(&runner,1);
 
     if(nof_cacti<=MAX_OBSTACLES){ //Checks if there are MAX_OBSTACLES cacti on screen already
