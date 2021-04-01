@@ -30,7 +30,7 @@ typedef struct {
    const uint8_t* sprite;
    uint8_t steps;
    uint8_t hasChanged;
-}dino;
+} runner_t;
 
 typedef struct  {
    uint8_t x;
@@ -49,7 +49,7 @@ struct ground {
    const uint8_t* sprite;
 };
 
-//Points used for the rex jump
+//Points used for the runner jump
 const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10,10,10,9,9,9,8,8,8,8,8,8};
 
 
@@ -66,61 +66,69 @@ void draw_ground(void){
   if(i==ground_width)i=0;
 }
 
-uint8_t draw_cactus(cacti cactus,uint8_t color){
-  return drawbitmap2(buffer, cactus.x, cactus.y, cactus.sprite, cactus.w, cactus.h, color);
+uint8_t draw_cactus(cacti* cactus,uint8_t color){
+  return drawbitmap2(buffer, cactus->x, cactus->y, cactus->sprite, cactus->w, cactus->h, color);
 }
 
-uint8_t draw_dino(dino rex, uint8_t color){
-    return drawbitmap2(buffer, rex.x, rex.y, rex.sprite, 20, 24, color);
+uint8_t draw_runner(runner_t* runner, uint8_t color){ // use pointers
+    return drawbitmap2(buffer, runner->x, runner->y, runner->sprite, 20, 24, color);
 }
-void Rex2screen(dino rex, uint8_t color){
-  draw_dino(rex,color);
-  write_part(buffer,rex.x,rex.y,rex.w,rex.h);
+void runner2screen(runner_t* runner, uint8_t color){
+  draw_runner(runner,color);
+  write_part(buffer,runner->x,runner->y,runner->w,runner->h);
 }
 
-void updateJump(dino* rex){
+void updateJump(runner_t* runner){
   static uint8_t index=0;
-  if(rex->isJumping){
-    if(rex->isJumping>31){
-      if(points[index]!=rex->y){
-        rex->hasChanged=1;
-        Rex2screen(*rex, 0);
+  if(runner->isJumping){
+    if(runner->isJumping>31){
+      if(points[index]!=runner->y){
+        runner->hasChanged=1;
+        runner2screen(runner, 0);
       }
-      rex->y=points[index];
-      rex->isJumping--;
+      runner->y=points[index];
+      runner->isJumping--;
       index++;
     }else{
       index--;
-      if(points[index]!=rex->y){
-        rex->hasChanged=1;
-        Rex2screen(*rex, 0);
+      if(points[index]!=runner->y){
+        runner->hasChanged=1;
+        runner2screen(runner, 0);
       }
-      rex->y=points[index];
-      rex->isJumping--;
-      if(rex->isJumping==0)rex->y=40;
+      runner->y=points[index];
+      runner->isJumping--;
+      if(runner->isJumping==0) {
+	      runner->y=40;
+	      runner->hasChanged=1;
+      }
     }
   }else{
-    rex->y=40;
+    runner->y=40;
   }
 }
 
-void updateWalk(dino* rex){
-  if(!(rex->isJumping)){
-    rex->steps++;
-    if(rex->steps==20){
+void updateWalk(runner_t* runner){
+  if(!(runner->isJumping)){
+    runner->steps++;
+    if(!runner->steps%8){
 //    if (rex->sprite==dino3) {
-      if (rex->sprite==runner3) {
-	rex->sprite=runner3;
+      if (runner->sprite==runner1) {
+	runner->sprite=runner2;
         //rex->sprite=dino4;
-        rex->hasChanged=1;
-        Rex2screen(*rex, 0);
-      }else{
-	rex->sprite=runner2;
+        runner->hasChanged=1;
+        runner2screen(runner, 0);
+      } else if (runner->sprite==runner2) {
+        runner->sprite=runner3;
+        //rex->sprite=dino4;
+        runner->hasChanged=1;
+        runner2screen(runner, 0); 
+      } else {
+	runner->sprite=runner1;
         //rex->sprite=dino3;
-        rex->hasChanged=1;
-        Rex2screen(*rex, 0);
+        runner->hasChanged=1;
+        runner2screen(runner, 0);
       }
-      rex->steps=0;
+      //rex->steps=0;
     }
   }
 }
@@ -149,16 +157,16 @@ void kill_cactus(cacti* cactus){
   cactus->alive=0;
 }
 
-void create_dino(dino* rex){
-  rex->x = 20;
-  rex->y = 40;
-  rex->w = 20;
-  rex->h = 24;
-  rex->sprite=runner1;
+void create_runner(runner_t* runner){
+  runner->x = 20;
+  runner->y = 40;
+  runner->w = 20;
+  runner->h = 24;
+  runner->sprite=runner1;
   //rex->sprite=dino3;
-  rex->isJumping=0;
-  rex->steps=0;
-  rex->hasChanged=1;
+  runner->isJumping=0;
+  runner->steps=0;
+  runner->hasChanged=1;
 }
 
 void draw_score(uint16_t score){
@@ -210,8 +218,8 @@ int main(void){
   cactbig[4]=cactusb5;
   cactbig[5]=cactusb6;
 
-  dino Rex;
-  create_dino(&Rex);
+  runner_t runner;
+  create_runner(&runner);
   int button_sense = 0;
 
   cacti cac[MAX_CAC];
@@ -227,7 +235,7 @@ int main(void){
 	  highscore = 0;
   } 
 
-  uint8_t bump=0; //collision between dino and catus kept here
+  uint8_t bump=0; //collision between runner and catus kept here
   clear_screen();
   clear_buffer(buffer);
 
@@ -253,13 +261,13 @@ int main(void){
     _delay_us(500); // simple attempt to debounce
     clear_buffer(buffer);//The memory is cleared, but not the LCD
     if(button_sense || button_pressed()){
-       if(!(Rex.isJumping)){
-         Rex.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
+       if(!(runner.isJumping)){
+         runner.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
        }
     }
-    updateWalk(&Rex); //Updates dino sprite (which leg touches the ground)
-    updateJump(&Rex); //Update the dinos position
-    draw_dino(Rex,1);
+    updateWalk(&runner); //Updates runner sprite (which leg touches the ground)
+    updateJump(&runner); //Update the runner position
+    draw_runner(&runner,1);
 
     if(nof_cacti<=MAX_CAC){ //Checks if there are MAX_CAC cacti on screen already
       if((!cac[tail].alive)&(frames2nxtCac==0)){
@@ -276,10 +284,10 @@ int main(void){
       }
     }
 
-    //Only writes the dino to the LCD when it has changed position or sprite
-    if(Rex.hasChanged){
-      write_part(buffer,Rex.x,Rex.y,Rex.w,Rex.h);
-      Rex.hasChanged=0;
+    //Only writes the runner to the LCD when it has changed position or sprite
+    if(runner.hasChanged){
+      write_part(buffer,runner.x,runner.y,runner.w,runner.h);
+      runner.hasChanged=0;
     }
 
     //Draw cacti to the buffer, checks collision, and write them to the LCD
@@ -289,23 +297,23 @@ int main(void){
           kill_cactus(&cac[j]);
           score++;
           nof_cacti--;
-          draw_cactus(cac[j],0);
+          draw_cactus(&cac[j],0);
           draw_score(score);//The score is also drawn to the LCD only when changed
         }else{
           cac[j].x--;
-          bump|=draw_cactus(cac[j],1);//draw the cati to the buffer and gets a possible collision
+          bump|=draw_cactus(&cac[j],1);//draw the cati to the buffer and gets a possible collision
         }
         write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);//draw the cati to the LCD
       }
     }
 
-    draw_ground();//draww ground to buffer
+    draw_ground();//draw ground to buffer
     write_part(buffer,0,56,128,8);//draw gnd from buffer to LCD
 
     //_delay_ms(1);//was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
     if (bump) {
       drawstring(buffer,16,2,"G A M E  O V E R");
-      write_part(buffer,16,16,100,8);//FIXME put in the center
+      write_part(buffer,16,16,100,8);
       if(score>highscore)update_score(score); //writes new score to EEPROM`
       while (1) {
       if(button_pressed()){
@@ -319,7 +327,7 @@ int main(void){
     //Erase cacti from LCD screen
     for(int j=0;j<MAX_CAC;j++){
       if(cac[j].alive){
-        draw_cactus(cac[j],0);
+        draw_cactus(&cac[j],0);
         write_part(buffer,cac[j].x,cac[j].y,cac[j].w,cac[j].h);
       }
     }
