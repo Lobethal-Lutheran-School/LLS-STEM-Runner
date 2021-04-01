@@ -233,6 +233,16 @@ int main(void){
   uint8_t bump=0; //collision between runner and catus kept here
   clear_screen();
   clear_buffer(buffer);
+  
+  drawstring(buffer,42,2,"LOBETHAL");
+  drawstring(buffer,42,3,"LUTHERAN");
+  drawstring(buffer,42,4," SCHOOL ");
+  drawstring(buffer,34,5,"RUNNER GAME");
+  write_part(buffer,34,6,80,40);
+  _delay_ms(500);
+  clear_screen();
+  clear_buffer(buffer);
+  
 
   for(int j=0;j<MAX_OBSTACLES;j++){
     kill_obstacle(&obstacles[j]);
