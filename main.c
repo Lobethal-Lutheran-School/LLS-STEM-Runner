@@ -22,31 +22,31 @@
 uint8_t buffer[128*64/8];
 
 typedef struct {
-   uint8_t isJumping;
-   uint8_t x;
-   uint8_t y;
-   uint8_t w;
-   uint8_t h;
-   const uint8_t* sprite;
-   uint8_t steps;
-   uint8_t hasChanged;
+  uint8_t isJumping;
+  uint8_t x;
+  uint8_t y;
+  uint8_t w;
+  uint8_t h;
+  const uint8_t* sprite;
+  uint8_t steps;
+  uint8_t hasChanged;
 } runner_t;
 
 typedef struct  {
-   uint8_t x;
-   uint8_t y;
-   uint8_t w;
-   uint8_t h;
-   const uint8_t* sprite;
-   uint8_t alive;
+  uint8_t x;
+  uint8_t y;
+  uint8_t w;
+  uint8_t h;
+  const uint8_t* sprite;
+  uint8_t alive;
 } obstacle_t;
 
 struct ground {
-   uint8_t x;
-   int8_t y;
-   uint8_t w;
-   uint8_t h;
-   const uint8_t* sprite;
+  uint8_t x;
+  int8_t y;
+  uint8_t w;
+  uint8_t h;
+  const uint8_t* sprite;
 };
 
 //Points used for the runner jump
@@ -57,10 +57,10 @@ void draw_ground(void){
   static uint16_t i=0; // and then the one byte variable said... roll over... roll over...
   int ground_width = 512;
   if (i < (ground_width - 128)) {
-	drawbitmap(buffer, 0, 56, gnd + i, 128, 8, 1);
+    drawbitmap(buffer, 0, 56, gnd + i, 128, 8, 1);
   } else {
-  	drawbitmap(buffer, 0, 56, gnd+i, ground_width-i, 8, 1);
-	drawbitmap(buffer, ground_width-i, 56, gnd, 128-(ground_width-i), 8, 1);
+    drawbitmap(buffer, 0, 56, gnd+i, ground_width-i, 8, 1);
+    drawbitmap(buffer, ground_width-i, 56, gnd, 128-(ground_width-i), 8, 1);
   }
   i++;
   if(i==ground_width)i=0;
@@ -71,7 +71,7 @@ uint8_t draw_obstacle(obstacle_t* cactus,uint8_t color){
 }
 
 uint8_t draw_runner(runner_t* runner, uint8_t color){ // use pointers
-    return drawbitmap2(buffer, runner->x, runner->y, runner->sprite, 20, 24, color);
+  return drawbitmap2(buffer, runner->x, runner->y, runner->sprite, 20, 24, color);
 }
 void runner_to_screen(runner_t* runner, uint8_t color){
   draw_runner(runner,color);
@@ -98,8 +98,8 @@ void update_jump(runner_t* runner){
       runner->y=points[index];
       runner->isJumping--;
       if(runner->isJumping==0) {
-	      runner->y=40;
-	      runner->hasChanged=1;
+	runner->y=40;
+	runner->hasChanged=1;
       }
     }
   }else{
@@ -111,7 +111,7 @@ void update_walk(runner_t* runner){
   if(!(runner->isJumping)){
     runner->steps++;
     if(!runner->steps%8){
-//    if (rex->sprite==dino3) {
+      //    if (rex->sprite==dino3) {
       if (runner->sprite==runner1) {
 	runner->sprite=runner2;
         //rex->sprite=dino4;
@@ -163,7 +163,6 @@ void create_runner(runner_t* runner){
   runner->w = 20;
   runner->h = 24;
   runner->sprite=runner1;
-  //rex->sprite=dino3;
   runner->isJumping=0;
   runner->steps=0;
   runner->hasChanged=1;
@@ -175,13 +174,13 @@ void draw_score(uint16_t score){
   int offset;
   int char_width = 6;
   if (score < 10) { // could use log_10
-	offset = 0;
+    offset = 0;
   } else if (score < 100) {
-	offset = 1;
+    offset = 1;
   } else if (score < 1000) {
-	offset = 2;
+    offset = 2;
   } else {
-	offset = 3;
+    offset = 3;
   }
   drawstring(buffer, 118 - offset*char_width, 0, s);
   write_part(buffer, 118 - offset*char_width, 0, 22, 8);
@@ -232,7 +231,7 @@ int main(void){
   init_hardware(); //low level atmega stuff (PORTS, ACD, etc)
   highscore=get_score();
   if (highscore == 0xFFFF) {
-	  highscore = 0;
+    highscore = 0;
   } 
 
   uint8_t bump=0; //collision between runner and catus kept here
@@ -240,7 +239,7 @@ int main(void){
   clear_buffer(buffer);
 
   for(int j=0;j<MAX_OBSTACLES;j++){
-      kill_obstacle(&cac[j]);
+    kill_obstacle(&cac[j]);
   }
   draw_highscore(highscore);//only time this is written to the screen
   draw_score(score);
@@ -261,9 +260,9 @@ int main(void){
     _delay_us(500); // simple attempt to debounce
     clear_buffer(buffer);//The memory is cleared, but not the LCD
     if(button_sense || button_pressed()){
-       if(!(runner.isJumping)){
-         runner.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
-       }
+      if(!(runner.isJumping)){
+	runner.isJumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
+      }
     }
     update_walk(&runner); //Updates runner sprite (which leg touches the ground)
     update_jump(&runner); //Update the runner position
@@ -316,9 +315,9 @@ int main(void){
       write_part(buffer,16,16,100,8);
       if(score>highscore)update_score(score); //writes new score to EEPROM`
       while (1) {
-      if(button_pressed()){
-        reset();//see hardware.c for implementation
-      }
+	if(button_pressed()){
+	  reset();//see hardware.c for implementation
+	}
       }
     }
 
