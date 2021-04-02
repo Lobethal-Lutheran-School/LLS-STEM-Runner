@@ -43,6 +43,15 @@ typedef struct {
   uint8_t alive;
 } obstacle_t;
 
+typedef struct {
+  const uint8_t *obstacles_small[6];
+  const uint8_t *obstacles_big[6];
+  uint8_t tail;
+  uint8_t n_of_obstacles;
+  uint8_t frames_to_next_obstacle;
+  uint16_t score;
+} obstacle_ctx_t;
+
 struct ground {
   uint8_t x;
   int8_t y;
@@ -136,19 +145,19 @@ void update_walk(runner_t* runner) {
   }
 }
 
-void create_obstacle(obstacle_t* obstacle, const uint8_t **obstacles_small, const uint8_t **obstacles_big) {
+void create_obstacle(obstacle_t *obstacle, obstacle_ctx_t *obstacle_ctx) {
   obstacle->x=127;// Fixed (It cant be more than 127)
   obstacle->alive=0xFF;
   if (get_rand(2)%2==0) {//gets the type of the obstacle(big or small)
     obstacle->y=48;
     obstacle->w=8;
     obstacle->h=16;
-    obstacle->sprite=obstacles_small[get_rand(5)];
+    obstacle->sprite=obstacle_ctx->obstacles_small[get_rand(5)];
   } else {
     obstacle->y=40;
     obstacle->w=12;
     obstacle->h=24;
-    obstacle->sprite=obstacles_big[get_rand(5)];
+    obstacle->sprite=obstacle_ctx->obstacles_big[get_rand(5)];
   }
 }
 
@@ -189,7 +198,7 @@ void draw_score(uint16_t score) {
 }
 
 void init_highscore(uint16_t *highscore) {
-  *highscore=get_score();
+  *highscore = get_score();
   if (*highscore == 0xFFFF) {
     *highscore = 0;
   }
@@ -235,35 +244,35 @@ void erase_obstacles(obstacle_t *obstacles) { //Erase obstacles from LCD screen
   }
 }
 
-void init_obstacle_sprites(const uint8_t **small, const uint8_t **big) {
+void init_obstacle_sprites(obstacle_ctx_t *obstacle_ctx) {
   //Initialise the arrays that keep the sprite addresses
   //One of these values is randomly chosen at obstacle creation
-  small[0]=cacts1;
-  small[1]=cacts2;
-  small[2]=cacts3;
-  small[3]=cacts4;
-  small[4]=cacts5;
-  small[5]=cacts6;
+  obstacle_ctx->obstacles_small[0]=cacts1;
+  obstacle_ctx->obstacles_small[1]=cacts2;
+  obstacle_ctx->obstacles_small[2]=cacts3;
+  obstacle_ctx->obstacles_small[3]=cacts4;
+  obstacle_ctx->obstacles_small[4]=cacts5;
+  obstacle_ctx->obstacles_small[5]=cacts6;
 
-  big[0]=cactusb1;
-  big[1]=cactusb2;
-  big[2]=cactusb3;
-  big[3]=cactusb4;
-  big[4]=cactusb5;
-  big[5]=cactusb6;
+  obstacle_ctx->obstacles_big[0]=cactusb1;
+  obstacle_ctx->obstacles_big[1]=cactusb2;
+  obstacle_ctx->obstacles_big[2]=cactusb3;
+  obstacle_ctx->obstacles_big[3]=cactusb4;
+  obstacle_ctx->obstacles_big[4]=cactusb5;
+  obstacle_ctx->obstacles_big[5]=cactusb6;
 }
 
-int collision_detection_and_draw(obstacle_t *obstacles, uint16_t *score, uint8_t *n_of_obstacles) {
+int collision_detection_and_draw(obstacle_t *obstacles, obstacle_ctx_t *obstacle_ctx) {
     //Draw obstacle to the buffer, check collision, and write to LCD
     int bump = 0;
     for (int j=0;j<MAX_OBSTACLES;j++) {
       if (obstacles[j].alive) {
         if (obstacles[j].x<1) {
           reset_obstacle(&obstacles[j]);
-          (*score)++;
-          (*n_of_obstacles)--;
+          (obstacle_ctx->score)++;
+          (obstacle_ctx->n_of_obstacles)--;
           draw_obstacle(&obstacles[j],0);
-          draw_score(*score);//The score is only drawn to the LCD when changed
+          draw_score(obstacle_ctx->score);//The score is only drawn to the LCD when changed
         } else {
           obstacles[j].x--;
           bump|=draw_obstacle(&obstacles[j],1);//draw obstacle to buffer and detect possible collision
@@ -274,21 +283,27 @@ int collision_detection_and_draw(obstacle_t *obstacles, uint16_t *score, uint8_t
     return bump;
 }
 
-void spawn_obstacle_routine(obstacle_t *obstacles, const uint8_t **obstacles_small,
-                 const uint8_t **obstacles_big, uint8_t *tail, uint8_t *n_of_obstacles,
-                 uint8_t *frames_to_next_obstacle) {
-  if ((!obstacles[*tail].alive)&(*frames_to_next_obstacle==0)) {
-    if (get_rand(16)==0) {//"1 in 16 chance" No, I know
+void spawn_obstacle_routine(obstacle_t *obstacles, obstacle_ctx_t *obstacle_ctx) {
+  if ((!obstacles[obstacle_ctx->tail].alive)&(obstacle_ctx->frames_to_next_obstacle==0)) {
+    if (get_rand(16) == 0) {//"1 in 16 chance" No, I know
       //If the previous conditions are met, create a new obstacle and delay creation of new obstacle
-      create_obstacle(&obstacles[*tail], obstacles_small, obstacles_big);
-      (*tail)++;
-      (*n_of_obstacles)++;
-      *frames_to_next_obstacle=60;//can be changed
+      create_obstacle(&obstacles[obstacle_ctx->tail], obstacle_ctx);
+      (obstacle_ctx->tail)++;
+      (obstacle_ctx->n_of_obstacles)++;
+      obstacle_ctx->frames_to_next_obstacle = 60;//can be changed
     }
   }
-  if (*tail==MAX_OBSTACLES) {
-    *tail=0;
+  if (obstacle_ctx->tail == MAX_OBSTACLES) {
+    obstacle_ctx->tail = 0;
   }
+}
+
+void init_obstacle_ctx(obstacle_ctx_t *obstacle_ctx) {
+  init_obstacle_sprites(obstacle_ctx);
+  obstacle_ctx->tail = 0;
+  obstacle_ctx->n_of_obstacles = 0;
+  obstacle_ctx->frames_to_next_obstacle = 0;
+  obstacle_ctx->score = 0;
 }
 
 void finish_game(uint16_t score, uint16_t highscore) {
@@ -304,27 +319,22 @@ void finish_game(uint16_t score, uint16_t highscore) {
 
 int main(void) {
 
-  const uint8_t* obstacles_small[6];
-  const uint8_t* obstacles_big[6];
   int button_sense = 0;
-  uint8_t n_of_obstacles = 0; //current number of obstacles on screen
-  uint8_t tail = 0;//the position of the new obstacle on the ring
-  uint8_t frames_to_next_obstacle = 0; //frames until next obstacle created = delay/space for runner to land
   uint16_t highscore = 0;
-  uint16_t score = 0;
   uint8_t bump = 0; //collision between runner and obstacle kept here
 
   runner_t runner;
   obstacle_t obstacles[MAX_OBSTACLES];
+  obstacle_ctx_t obstacle_ctx;
+  init_obstacle_ctx(&obstacle_ctx);
   create_runner(&runner);
   reset_obstacles(obstacles);
-  init_obstacle_sprites(obstacles_small, obstacles_big);
   init_hardware(); //low level atmega stuff (PORTS, ADC, etc)
   init_highscore(&highscore);
 
   draw_flash_screen();
   draw_highscore(highscore);//only time this is written to the screen
-  draw_score(score);
+  draw_score(obstacle_ctx.score);
 
   while (1) {
     bump = 0;
@@ -339,21 +349,15 @@ int main(void) {
     update_walk(&runner); //Updates runner sprite (which leg touches the ground)
     update_jump(&runner); //Update the runner position
     draw_runner(&runner,1);
-
-    if (n_of_obstacles <= MAX_OBSTACLES) { //Checks if there are MAX_OBSTACLES obstacles on screen already
-      spawn_obstacle_routine(obstacles, obstacles_small, obstacles_big, &tail, &n_of_obstacles, &frames_to_next_obstacle);
+    if (obstacle_ctx.n_of_obstacles <= MAX_OBSTACLES) { //Checks if MAX_OBSTACLES obstacles on screen already
+      spawn_obstacle_routine(obstacles, &obstacle_ctx);
     }
-
     update_runner(&runner);
-
-    bump = collision_detection_and_draw(obstacles, &score, &n_of_obstacles);
-
+    bump = collision_detection_and_draw(obstacles, &obstacle_ctx);
     update_ground();
-
     _delay_ms(2); //was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
-
-    if (bump) finish_game(score, highscore);
-    if (frames_to_next_obstacle) frames_to_next_obstacle--;//Each frame decreases delay for new obstacle
+    if (bump) finish_game(obstacle_ctx.score, highscore);
+    if (obstacle_ctx.frames_to_next_obstacle) obstacle_ctx.frames_to_next_obstacle--;//Each frame decreases delay for new obstacle
     erase_obstacles(obstacles);
   }
 }
