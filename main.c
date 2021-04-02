@@ -181,10 +181,10 @@ void update_runner(runner_t *runner, uint8_t *buffer) {
 }
 
 void draw_score(uint16_t score, uint8_t *buffer) {
-  char s[5];
+  static char s[5];
   itoa(score,s,10);
-  int offset;
-  int char_width = 6;
+  static int offset;
+  static int char_width = 6;
   if (score < 10) { // could use log_10
     offset = 0;
   } else if (score < 100) {
@@ -231,13 +231,15 @@ void reset_obstacle(obstacle_t *obstacle) {
 }
 
 void reset_obstacles(obstacle_t *obstacles) {
-  for (int j=0;j<MAX_OBSTACLES;j++) {
+  static int j;
+  for (j=0;j<MAX_OBSTACLES;j++) {
     reset_obstacle(&obstacles[j]);
   }
 }
 
 void erase_obstacles(obstacle_t *obstacles, uint8_t *buffer) { //Erase obstacles from LCD screen
-  for (int j=0; j<MAX_OBSTACLES; j++) {
+  static int j;
+  for (j=0; j<MAX_OBSTACLES; j++) {
     if (obstacles[j].alive) {
       draw_obstacle(&obstacles[j], 0, buffer);
       write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);
@@ -265,8 +267,9 @@ void init_obstacle_sprites(obstacle_ctx_t *obstacle_ctx) {
 
 int collision_detection_and_draw(obstacle_t *obstacles, obstacle_ctx_t *obstacle_ctx, uint8_t *buffer) {
     //Draw obstacle to the buffer, check collision, and write to LCD
-    int bump = 0;
-    for (int j=0;j<MAX_OBSTACLES;j++) {
+    static int bump = 0;
+    static int j;
+    for (j=0;j<MAX_OBSTACLES;j++) {
       if (obstacles[j].alive) {
         if (obstacles[j].x<1) {
           reset_obstacle(&obstacles[j]);
