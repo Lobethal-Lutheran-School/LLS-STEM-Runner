@@ -20,9 +20,6 @@
 #include "ST7565-T3/c/stlcd.h"
 #include "ST7565-T3/c/glcd.h"
 
-//This is the buffer used to transfer data to the LCD
-uint8_t buffer[128*64/8];
-
 typedef struct {
   uint8_t is_jumping;
   uint8_t x;
@@ -60,23 +57,20 @@ typedef struct {
   const uint8_t* sprite;
 } ground_sprite_t;
 
-//Points used for the runner jump
-const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10,10,10,9,9,9,8,8,8,8,8,8};
-
-void draw_ground(ground_sprite_t *ground) {
+void draw_ground(ground_sprite_t *ground, uint8_t *buffer) {
   static uint16_t i = 0; // and then the one byte variable said... roll over... roll over...
   if (i < (ground->w - 128)) {
     drawbitmap(buffer, ground->x, ground->y, gnd + i, 128, ground->h, 1);
   } else {
-    drawbitmap(buffer, ground->x, ground->y, gnd+i, ground->w-i, 8, 1);
+    drawbitmap(buffer, ground->x, ground->y, gnd+i, ground->w-i, ground->h, 1);
     drawbitmap(buffer, ground->w-i, ground->y, gnd, 128-(ground->w-i), ground->h, 1);
   }
   i++;
   if (i == ground->w) i=0;
 }
 
-void update_ground(ground_sprite_t *ground) {
-    draw_ground(ground);//draw ground to buffer
+void update_ground(ground_sprite_t *ground, uint8_t *buffer) {
+    draw_ground(ground, buffer);//draw ground to buffer
     write_part(buffer, ground->x, ground->y,128, ground->h);//draw gnd from buffer to LCD
 }
 
@@ -88,26 +82,26 @@ void init_gnd(ground_sprite_t *ground) {
   ground->sprite = gnd;
 }
 
-uint8_t draw_obstacle(obstacle_t* obstacle, uint8_t color) {
+uint8_t draw_obstacle(obstacle_t* obstacle, uint8_t color, uint8_t *buffer) {
   return drawbitmap2(buffer, obstacle->x, obstacle->y, obstacle->sprite, obstacle->w, obstacle->h, color);
 }
 
-uint8_t draw_runner(runner_t* runner, uint8_t color) {
+uint8_t draw_runner(runner_t* runner, uint8_t color, uint8_t *buffer) {
   return drawbitmap2(buffer, runner->x, runner->y, runner->sprite, 20, 24, color);
 }
 
-void runner_to_screen(runner_t* runner, uint8_t color) {
-  draw_runner(runner,color);
+void runner_to_screen(runner_t* runner, uint8_t color, uint8_t *buffer) {
+  draw_runner(runner, color, buffer);
   write_part(buffer,runner->x,runner->y,runner->w,runner->h);
 }
 
-void update_jump(runner_t* runner){
+void update_jump(runner_t* runner, const char *points, uint8_t *buffer){
   static uint8_t index=0;
   if (runner->is_jumping){
     if (runner->is_jumping>31){
       if (points[index]!=runner->y){
         runner->has_changed=1;
-        runner_to_screen(runner, 0);
+        runner_to_screen(runner, 0, buffer);
       }
       runner->y=points[index];
       runner->is_jumping--;
@@ -116,7 +110,7 @@ void update_jump(runner_t* runner){
       index--;
       if (points[index]!=runner->y){
         runner->has_changed=1;
-        runner_to_screen(runner, 0);
+        runner_to_screen(runner, 0, buffer);
       }
       runner->y=points[index];
       runner->is_jumping--;
@@ -131,22 +125,22 @@ void update_jump(runner_t* runner){
   }
 }
 
-void update_walk(runner_t* runner) {
+void update_walk(runner_t* runner, uint8_t *buffer) {
   if (!(runner->is_jumping)) {
     runner->steps++;
     if (!((runner->steps)%4)) {
       if (runner->sprite==runner1) {
 	runner->sprite=runner2;
         runner->has_changed=1;
-        runner_to_screen(runner, 0);
+        runner_to_screen(runner, 0, buffer);
       } else if (runner->sprite==runner2) {
         runner->sprite=runner3;
         runner->has_changed=1;
-        runner_to_screen(runner, 0); 
+        runner_to_screen(runner, 0, buffer); 
       } else {
 	runner->sprite=runner1;
         runner->has_changed=1;
-        runner_to_screen(runner, 0);
+        runner_to_screen(runner, 0, buffer);
       }
     }
   }
@@ -179,14 +173,14 @@ void create_runner(runner_t *runner) {
   runner->has_changed=1;
 }
 
-void update_runner(runner_t *runner) {
+void update_runner(runner_t *runner, uint8_t *buffer) {
   if (runner->has_changed) {
     write_part(buffer,runner->x,runner->y,runner->w,runner->h);
     runner->has_changed = 0;
   }
 }
 
-void draw_score(uint16_t score) {
+void draw_score(uint16_t score, uint8_t *buffer) {
   char s[5];
   itoa(score,s,10);
   int offset;
@@ -211,14 +205,14 @@ void init_highscore(uint16_t *highscore) {
   }
 }
 
-void draw_highscore(uint16_t high) {
+void draw_highscore(uint16_t high, uint8_t *buffer) {
   char s[5];
   itoa(high,s,10);
   drawstring(buffer, 86, 0,s);
   write_part(buffer,86,0,22,8);
 }
 
-void draw_flash_screen(void) {
+void draw_flash_screen(uint8_t *buffer) {
   clear_screen();
   clear_buffer(buffer);
   drawstring(buffer,10,2,"LOBETHAL");
@@ -242,10 +236,10 @@ void reset_obstacles(obstacle_t *obstacles) {
   }
 }
 
-void erase_obstacles(obstacle_t *obstacles) { //Erase obstacles from LCD screen
+void erase_obstacles(obstacle_t *obstacles, uint8_t *buffer) { //Erase obstacles from LCD screen
   for (int j=0; j<MAX_OBSTACLES; j++) {
     if (obstacles[j].alive) {
-      draw_obstacle(&obstacles[j],0);
+      draw_obstacle(&obstacles[j], 0, buffer);
       write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);
     }
   }
@@ -269,7 +263,7 @@ void init_obstacle_sprites(obstacle_ctx_t *obstacle_ctx) {
   obstacle_ctx->obstacles_big[5]=cactusb6;
 }
 
-int collision_detection_and_draw(obstacle_t *obstacles, obstacle_ctx_t *obstacle_ctx) {
+int collision_detection_and_draw(obstacle_t *obstacles, obstacle_ctx_t *obstacle_ctx, uint8_t *buffer) {
     //Draw obstacle to the buffer, check collision, and write to LCD
     int bump = 0;
     for (int j=0;j<MAX_OBSTACLES;j++) {
@@ -278,11 +272,11 @@ int collision_detection_and_draw(obstacle_t *obstacles, obstacle_ctx_t *obstacle
           reset_obstacle(&obstacles[j]);
           (obstacle_ctx->score)++;
           (obstacle_ctx->n_of_obstacles)--;
-          draw_obstacle(&obstacles[j],0);
-          draw_score(obstacle_ctx->score);//The score is only drawn to the LCD when changed
+          draw_obstacle(&obstacles[j], 0, buffer);
+          draw_score(obstacle_ctx->score, buffer);//The score is only drawn to the LCD when changed
         } else {
           obstacles[j].x--;
-          bump|=draw_obstacle(&obstacles[j],1);//draw obstacle to buffer and detect possible collision
+          bump|=draw_obstacle(&obstacles[j], 1, buffer);//draw obstacle to buffer and detect possible collision
         }
         write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);//draw obstacle to LCD
       }
@@ -313,7 +307,7 @@ void init_obstacle_ctx(obstacle_ctx_t *obstacle_ctx) {
   obstacle_ctx->score = 0;
 }
 
-void finish_game(uint16_t score, uint16_t highscore) {
+void finish_game(uint16_t score, uint16_t highscore, uint8_t *buffer) {
   drawstring(buffer,16,2,"G A M E  O V E R");
   write_part(buffer,16,16,100,8);
   if (score>highscore) update_score(score); //writes new score to EEPROM`
@@ -326,6 +320,10 @@ void finish_game(uint16_t score, uint16_t highscore) {
 
 int main(void) {
 
+  //This is the buffer used to transfer data to the LCD
+  uint8_t buffer[128*64/8];
+  //Points used for the runner jump y positions
+  const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10,10,10,9,9,9,8,8,8,8,8,8};
   uint8_t button_sense = 0;
   uint16_t highscore = 0;
   uint8_t bump = 0; //collision between runner and obstacle kept here
@@ -341,9 +339,9 @@ int main(void) {
   init_hardware(); //low level atmega stuff (PORTS, ADC, etc)
   init_highscore(&highscore);
 
-  draw_flash_screen();
-  draw_highscore(highscore);//only time this is written to the screen
-  draw_score(obstacle_ctx.score);
+  draw_flash_screen(buffer);
+  draw_highscore(highscore, buffer);//only time this is written to the screen
+  draw_score(obstacle_ctx.score, buffer);
 
   while (1) {
     bump = 0;
@@ -355,18 +353,18 @@ int main(void) {
     if ((button_sense || button_pressed()) && !(runner.is_jumping)) {
       runner.is_jumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
     }
-    update_walk(&runner); //Updates runner sprite (which leg touches the ground)
-    update_jump(&runner); //Update the runner position
-    draw_runner(&runner,1);
+    update_walk(&runner, buffer); //Updates runner sprite (which leg touches the ground)
+    update_jump(&runner, points, buffer); //Update the runner position
+    draw_runner(&runner, 1, buffer);
     if (obstacle_ctx.n_of_obstacles <= MAX_OBSTACLES) { //Checks if MAX_OBSTACLES obstacles on screen already
       spawn_obstacle_routine(obstacles, &obstacle_ctx);
     }
-    update_runner(&runner);
-    bump = collision_detection_and_draw(obstacles, &obstacle_ctx);
-    update_ground(&ground);
+    update_runner(&runner, buffer);
+    bump = collision_detection_and_draw(obstacles, &obstacle_ctx, buffer);
+    update_ground(&ground, buffer);
     _delay_ms(2); //was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
-    if (bump) finish_game(obstacle_ctx.score, highscore);
+    if (bump) finish_game(obstacle_ctx.score, highscore, buffer);
     if (obstacle_ctx.frames_to_next_obstacle) obstacle_ctx.frames_to_next_obstacle--;//Each frame decreases delay for new obstacle
-    erase_obstacles(obstacles);
+    erase_obstacles(obstacles, buffer);
   }
 }
