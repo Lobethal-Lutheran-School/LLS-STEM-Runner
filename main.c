@@ -52,33 +52,40 @@ typedef struct {
   uint16_t score;
 } obstacle_ctx_t;
 
-struct ground {
+typedef struct {
   uint8_t x;
   int8_t y;
-  uint8_t w;
+  uint16_t w;
   uint8_t h;
   const uint8_t* sprite;
-};
+} ground_sprite_t;
 
 //Points used for the runner jump
 const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10,10,10,9,9,9,8,8,8,8,8,8};
 
-void draw_ground(void) {
-  static uint16_t i=0; // and then the one byte variable said... roll over... roll over...
-  int ground_width = 512;
-  if (i < (ground_width - 128)) {
-    drawbitmap(buffer, 0, 56, gnd + i, 128, 8, 1);
+void draw_ground(ground_sprite_t *ground) {
+  static uint16_t i = 0; // and then the one byte variable said... roll over... roll over...
+  if (i < (ground->w - 128)) {
+    drawbitmap(buffer, ground->x, ground->y, gnd + i, 128, ground->h, 1);
   } else {
-    drawbitmap(buffer, 0, 56, gnd+i, ground_width-i, 8, 1);
-    drawbitmap(buffer, ground_width-i, 56, gnd, 128-(ground_width-i), 8, 1);
+    drawbitmap(buffer, ground->x, ground->y, gnd+i, ground->w-i, 8, 1);
+    drawbitmap(buffer, ground->w-i, ground->y, gnd, 128-(ground->w-i), ground->h, 1);
   }
   i++;
-  if (i==ground_width) i=0;
+  if (i == ground->w) i=0;
 }
 
-void update_ground(void) {
-    draw_ground();//draw ground to buffer
-    write_part(buffer,0,56,128,8);//draw gnd from buffer to LCD
+void update_ground(ground_sprite_t *ground) {
+    draw_ground(ground);//draw ground to buffer
+    write_part(buffer, ground->x, ground->y,128, ground->h);//draw gnd from buffer to LCD
+}
+
+void init_gnd(ground_sprite_t *ground) {
+  ground->x = 0;
+  ground->y = 64 - GND_GLCD_HEIGHT;
+  ground->w = GND_GLCD_WIDTH;
+  ground->h = GND_GLCD_HEIGHT;
+  ground->sprite = gnd;
 }
 
 uint8_t draw_obstacle(obstacle_t* obstacle, uint8_t color) {
@@ -319,13 +326,15 @@ void finish_game(uint16_t score, uint16_t highscore) {
 
 int main(void) {
 
-  int button_sense = 0;
+  uint8_t button_sense = 0;
   uint16_t highscore = 0;
   uint8_t bump = 0; //collision between runner and obstacle kept here
 
+  ground_sprite_t ground;
   runner_t runner;
   obstacle_t obstacles[MAX_OBSTACLES];
   obstacle_ctx_t obstacle_ctx;
+  init_gnd(&ground);
   init_obstacle_ctx(&obstacle_ctx);
   create_runner(&runner);
   reset_obstacles(obstacles);
@@ -354,7 +363,7 @@ int main(void) {
     }
     update_runner(&runner);
     bump = collision_detection_and_draw(obstacles, &obstacle_ctx);
-    update_ground();
+    update_ground(&ground);
     _delay_ms(2); //was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
     if (bump) finish_game(obstacle_ctx.score, highscore);
     if (obstacle_ctx.frames_to_next_obstacle) obstacle_ctx.frames_to_next_obstacle--;//Each frame decreases delay for new obstacle
