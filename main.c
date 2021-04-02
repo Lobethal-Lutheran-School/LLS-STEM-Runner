@@ -67,7 +67,12 @@ void draw_ground(void) {
   if (i==ground_width) i=0;
 }
 
-uint8_t draw_obstacle(obstacle_t* obstacle,uint8_t color) {
+void update_ground(void) {
+    draw_ground();//draw ground to buffer
+    write_part(buffer,0,56,128,8);//draw gnd from buffer to LCD
+}
+
+uint8_t draw_obstacle(obstacle_t* obstacle, uint8_t color) {
   return drawbitmap2(buffer, obstacle->x, obstacle->y, obstacle->sprite, obstacle->w, obstacle->h, color);
 }
 
@@ -147,7 +152,7 @@ void create_obstacle(obstacle_t* obstacle, const uint8_t **obstacles_small, cons
   }
 }
 
-void create_runner(runner_t* runner) {
+void create_runner(runner_t *runner) {
   runner->x = 20;
   runner->y = 40;
   runner->w = 20;
@@ -156,6 +161,13 @@ void create_runner(runner_t* runner) {
   runner->is_jumping=0;
   runner->steps=0;
   runner->has_changed=1;
+}
+
+void update_runner(runner_t *runner) {
+  if (runner->has_changed) {
+    write_part(buffer,runner->x,runner->y,runner->w,runner->h);
+    runner->has_changed = 0;
+  }
 }
 
 void draw_score(uint16_t score) {
@@ -190,16 +202,16 @@ void draw_highscore(uint16_t high) {
   write_part(buffer,86,0,22,8);
 }
 
-void draw_flash_screen(int color) {
+void draw_flash_screen(void) {
   clear_screen();
   clear_buffer(buffer);
   drawstring(buffer,10,2,"LOBETHAL");
   drawstring(buffer,10,3,"LUTHERAN");
   drawstring(buffer,10,4," SCHOOL ");
   drawstring(buffer,2,6,"RUNNER GAME");
-  drawbitmap2(buffer, 64, 0, logo, 64, 64, color);
+  drawbitmap(buffer, 64, 0, logo, 64, 64, 1);
   write_part(buffer,1,0,128,64);
-  _delay_ms(600);
+  _delay_ms(700);
   clear_screen();
   clear_buffer(buffer);
 }
@@ -211,6 +223,15 @@ void reset_obstacle(obstacle_t *obstacle) {
 void reset_obstacles(obstacle_t *obstacles) {
   for (int j=0;j<MAX_OBSTACLES;j++) {
     reset_obstacle(&obstacles[j]);
+  }
+}
+
+void erase_obstacles(obstacle_t *obstacles) { //Erase obstacles from LCD screen
+  for (int j=0; j<MAX_OBSTACLES; j++) {
+    if (obstacles[j].alive) {
+      draw_obstacle(&obstacles[j],0);
+      write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);
+    }
   }
 }
 
@@ -232,6 +253,55 @@ void init_obstacle_sprites(const uint8_t **small, const uint8_t **big) {
   big[5]=cactusb6;
 }
 
+int collision_detection_and_draw(obstacle_t *obstacles, uint16_t *score, uint8_t *n_of_obstacles) {
+    //Draw obstacle to the buffer, check collision, and write to LCD
+    int bump = 0;
+    for (int j=0;j<MAX_OBSTACLES;j++) {
+      if (obstacles[j].alive) {
+        if (obstacles[j].x<1) {
+          reset_obstacle(&obstacles[j]);
+          (*score)++;
+          (*n_of_obstacles)--;
+          draw_obstacle(&obstacles[j],0);
+          draw_score(*score);//The score is only drawn to the LCD when changed
+        } else {
+          obstacles[j].x--;
+          bump|=draw_obstacle(&obstacles[j],1);//draw obstacle to buffer and detect possible collision
+        }
+        write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);//draw obstacle to LCD
+      }
+    }
+    return bump;
+}
+
+void spawn_obstacle_routine(obstacle_t *obstacles, const uint8_t **obstacles_small,
+                 const uint8_t **obstacles_big, uint8_t *tail, uint8_t *n_of_obstacles,
+                 uint8_t *frames_to_next_obstacle) {
+  if ((!obstacles[*tail].alive)&(*frames_to_next_obstacle==0)) {
+    if (get_rand(16)==0) {//"1 in 16 chance" No, I know
+      //If the previous conditions are met, create a new obstacle and delay creation of new obstacle
+      create_obstacle(&obstacles[*tail], obstacles_small, obstacles_big);
+      (*tail)++;
+      (*n_of_obstacles)++;
+      *frames_to_next_obstacle=60;//can be changed
+    }
+  }
+  if (*tail==MAX_OBSTACLES) {
+    *tail=0;
+  }
+}
+
+void finish_game(uint16_t score, uint16_t highscore) {
+  drawstring(buffer,16,2,"G A M E  O V E R");
+  write_part(buffer,16,16,100,8);
+  if (score>highscore) update_score(score); //writes new score to EEPROM`
+  while (1) {
+    if (button_pressed()) {
+      reset();//see hardware.c for implementation
+    }
+  }
+}
+
 int main(void) {
 
   const uint8_t* obstacles_small[6];
@@ -246,101 +316,44 @@ int main(void) {
 
   runner_t runner;
   obstacle_t obstacles[MAX_OBSTACLES];
-  init_obstacle_sprites(obstacles_small, obstacles_big);
   create_runner(&runner);
-  init_hardware(); //low level atmega stuff (PORTS, ACD, etc)
-  init_highscore(&highscore);
   reset_obstacles(obstacles);
+  init_obstacle_sprites(obstacles_small, obstacles_big);
+  init_hardware(); //low level atmega stuff (PORTS, ADC, etc)
+  init_highscore(&highscore);
 
-  draw_flash_screen(1);
+  draw_flash_screen();
   draw_highscore(highscore);//only time this is written to the screen
   draw_score(score);
 
-  while(1) {
-    bump=0;
+  while (1) {
+    bump = 0;
     button_sense = button_pressed();
-    _delay_us(500);
-    button_sense |= button_pressed();
-    _delay_us(500);
-    button_sense |= button_pressed();
-    _delay_us(500);
-    button_sense |= button_pressed();
-    _delay_us(500);
-    button_sense |= button_pressed();
     _delay_us(500);
     button_sense |= button_pressed();
     _delay_us(500); // simple attempt to debounce
     clear_buffer(buffer);//The memory is cleared, but not the LCD
-    if (button_sense || button_pressed()) {
-      if (!(runner.is_jumping)) {
-	runner.is_jumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
-      }
+    if ((button_sense || button_pressed()) && !(runner.is_jumping)) {
+      runner.is_jumping=2*sizeof(points);//The array points has the positions for the jump (2x because is back an forth )
     }
     update_walk(&runner); //Updates runner sprite (which leg touches the ground)
     update_jump(&runner); //Update the runner position
     draw_runner(&runner,1);
 
-    if (n_of_obstacles<=MAX_OBSTACLES) { //Checks if there are MAX_OBSTACLES obstacles on screen already
-      if ((!obstacles[tail].alive)&(frames_to_next_obstacle==0)) {
-        if (get_rand(16)==0) {//"1 in 16 chance" No, I know
-          //If the previous conditions are met, create a new obstacle and delay creation of new obstacle
-          create_obstacle(&obstacles[tail], obstacles_small, obstacles_big);
-          tail++;
-          n_of_obstacles++;
-          frames_to_next_obstacle=60;//can be changed
-        }
-      }
-      if (tail==MAX_OBSTACLES) {
-        tail=0;
-      }
+    if (n_of_obstacles <= MAX_OBSTACLES) { //Checks if there are MAX_OBSTACLES obstacles on screen already
+      spawn_obstacle_routine(obstacles, obstacles_small, obstacles_big, &tail, &n_of_obstacles, &frames_to_next_obstacle);
     }
 
-    //Only writes the runner to the LCD when it has changed position or sprite
-    if(runner.has_changed) {
-      write_part(buffer,runner.x,runner.y,runner.w,runner.h);
-      runner.has_changed=0;
-    }
+    update_runner(&runner);
 
-    //Draw obstacle to the buffer, checks collision, and write them to the LCD
-    for (int j=0;j<MAX_OBSTACLES;j++) {
-      if (obstacles[j].alive) {
-        if (obstacles[j].x<1) {
-          reset_obstacle(&obstacles[j]);
-          score++;
-          n_of_obstacles--;
-          draw_obstacle(&obstacles[j],0);
-          draw_score(score);//The score is also drawn to the LCD only when changed
-        } else {
-          obstacles[j].x--;
-          bump|=draw_obstacle(&obstacles[j],1);//draw the cati to the buffer and gets a possible collision
-        }
-        write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);//draw the cati to the LCD
-      }
-    }
+    bump = collision_detection_and_draw(obstacles, &score, &n_of_obstacles);
 
-    draw_ground();//draw ground to buffer
-    write_part(buffer,0,56,128,8);//draw gnd from buffer to LCD
+    update_ground();
 
-    //_delay_ms(1);//was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
-    if (bump) {
-      drawstring(buffer,16,2,"G A M E  O V E R");
-      write_part(buffer,16,16,100,8);
-      if (score>highscore) update_score(score); //writes new score to EEPROM`
-      while (1) {
-	if (button_pressed()) {
-	  reset();//see hardware.c for implementation
-	}
-      }
-    }
+    _delay_ms(2); //was 3 FIXME needs a interrupt/timer scheme to keep fixed fps
 
-    if (frames_to_next_obstacle) frames_to_next_obstacle--;//Each frame decreases delay for new catcus
-
-    //Erase obstacle from LCD screen
-    for (int j=0;j<MAX_OBSTACLES;j++) {
-      if (obstacles[j].alive) {
-        draw_obstacle(&obstacles[j],0);
-        write_part(buffer,obstacles[j].x,obstacles[j].y,obstacles[j].w,obstacles[j].h);
-      }
-    }
+    if (bump) finish_game(score, highscore);
+    if (frames_to_next_obstacle) frames_to_next_obstacle--;//Each frame decreases delay for new obstacle
+    erase_obstacles(obstacles);
   }
 }
