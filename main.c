@@ -59,11 +59,11 @@ typedef struct {
 
 void draw_ground(ground_sprite_t *ground, uint8_t *buffer) {
   static uint16_t i = 0; // and then the one byte variable said... roll over... roll over...
-  if (i < (ground->w - 128)) {
-    drawbitmap(buffer, ground->x, ground->y, gnd + i, 128, ground->h, 1);
+  if (i < (ground->w - LCDWIDTH)) {
+    drawbitmap(buffer, ground->x, ground->y, gnd + i, LCDWIDTH, ground->h, 1);
   } else {
     drawbitmap(buffer, ground->x, ground->y, gnd+i, ground->w-i, ground->h, 1);
-    drawbitmap(buffer, ground->w-i, ground->y, gnd, 128-(ground->w-i), ground->h, 1);
+    drawbitmap(buffer, ground->w-i, ground->y, gnd, LCDWIDTH-(ground->w-i), ground->h, 1);
   }
   i++;
   if (i == ground->w) i=0;
@@ -71,12 +71,12 @@ void draw_ground(ground_sprite_t *ground, uint8_t *buffer) {
 
 void update_ground(ground_sprite_t *ground, uint8_t *buffer) {
     draw_ground(ground, buffer);//draw ground to buffer
-    write_part(buffer, ground->x, ground->y,128, ground->h);//draw gnd from buffer to LCD
+    write_part(buffer, ground->x, ground->y,LCDWIDTH, ground->h);//draw gnd from buffer to LCD
 }
 
 void init_gnd(ground_sprite_t *ground) {
   ground->x = 0;
-  ground->y = 64 - GND_GLCD_HEIGHT;
+  ground->y = LCDHEIGHT - GND_GLCD_HEIGHT;
   ground->w = GND_GLCD_WIDTH;
   ground->h = GND_GLCD_HEIGHT;
   ground->sprite = gnd;
@@ -147,7 +147,7 @@ void update_walk(runner_t* runner, uint8_t *buffer) {
 }
 
 void create_obstacle(obstacle_t *obstacle, obstacle_ctx_t *obstacle_ctx) {
-  obstacle->x=127;// Fixed (It cant be more than 127)
+  obstacle->x=LCDWIDTH-1;// Fixed (It cant be more than 127)
   obstacle->alive=0xFF;
   if (get_rand(2)%2==0) {//gets the type of the obstacle(big or small)
     obstacle->y=48;
@@ -219,8 +219,8 @@ void draw_flash_screen(uint8_t *buffer) {
   drawstring(buffer,10,3,"LUTHERAN");
   drawstring(buffer,10,4," SCHOOL ");
   drawstring(buffer,2,6,"RUNNER GAME");
-  drawbitmap(buffer, 64, 0, logo, 64, 64, 1);
-  write_part(buffer,1,0,128,64);
+  drawbitmap(buffer, LCDWIDTH-LOGO_WIDTH, 0, logo, LOGO_WIDTH, LOGO_HEIGHT, 1);
+  write_part(buffer,1,0,LCDWIDTH,LCDHEIGHT);
   _delay_ms(700);
   clear_screen();
   clear_buffer(buffer);
@@ -324,7 +324,7 @@ void finish_game(uint16_t score, uint16_t highscore, uint8_t *buffer) {
 int main(void) {
 
   //This is the buffer used to transfer data to the LCD
-  uint8_t buffer[128*64/8];
+  uint8_t buffer[LCDWIDTH*LCDHEIGHT/8];
   //Points used for the runner jump y positions
   const char points[]={38,31,28,25,23,22,20,19,18,17,16,15,14,14,13,12,12,11,11,10,10,10,9,9,9,8,8,8,8,8,8};
   uint8_t button_sense = 0;
