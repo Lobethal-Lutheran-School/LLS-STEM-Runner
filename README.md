@@ -75,7 +75,7 @@ A 10mm hole is useful 38mm down and 22mm in from the side, over the ICSP program
 
 ![Image](images/ICSP-access-port.jpg)
 
-a suitable pogo pin fixture can then be used with a programmer such as a USB-ASP
+a suitable pogo pin fixture (i.e. https://github.com/erichVK5/VK5HSE-Pogo-Pin-Adaptor as shown below) can then be used with a programmer such as a USB-ASP (also shown below)
 
 ![Image](images/usb-asp-and-pogo-pin-fixture.jpg)
 
