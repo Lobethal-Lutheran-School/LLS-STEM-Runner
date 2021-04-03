@@ -6,6 +6,8 @@ This project is an ideal vehicle for delivering hands on STEM and coding content
 
 This work builds on the excellent work of https://dragaosemchama.com/en/2017/01/rex/ found at https://github.com/robsoncouto/rex
 
+![Image](images/LLS-logo-on-screen.jpg)
+
 Improvements thus far include
 
  1) changes to the code to allow it to work on T4 v2 component testers
@@ -49,6 +51,10 @@ and these differences have to be reflected in the ST7565 driver code, namely, st
 
 Custom sprites can be made to replace the T-Rex, ground, or obstacles
 
+A dog sprite:
+
+![Image](images/dog-sprite-screen-shot.jpg)
+
 Tools for this are in sprite_tools
 
 It is recommended that sprites of the same height and width are used until the code has been refactored further. Currently, the runner_sprites.h file has a dog option enabled, and the T-Rex commented out.
@@ -64,6 +70,14 @@ Portuguese version: http://dragaosemchama.com.br/2017/02/t-rex-ptbt/
 ## Usage for T4 v2 boards
 
 **backup your flash and eeprom** before attempting to write new firmware.
+
+A 10mm hole is useful 38mm down and 22mm in from the side, over the ICSP programming pads
+
+![Image](images/ICSP-access-port.jpg)
+
+a suitable pogo pin fixture can then be used with a programmer such as a USB-ASP
+
+![Image](images/usb-asp-and-pogo-pin-fixture.jpg)
 
 this can be done in the original_firmware directory using the 
 
