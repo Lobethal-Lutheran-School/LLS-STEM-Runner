@@ -6,7 +6,15 @@ the sprite to be converted must be exported as an indexed c header file from the
 
 GIMP instructions:
 
-make the image height a multiple of 8, and the image width a multiple of 8
+make the image height a multiple of 8, but the image width can be something other than a multiple of 8
+
+Ground dimensions: 512 pixels wide, and 8 pixels high
+
+Runner dimensions: 20 pixels wide, and 24 pixels high, and three different pixmaps are used for the runner for animation, i.e. legs, or tail
+
+Small obstacles (6 different ones can be used): 8 pixels wide, and 16 pixels high
+
+Large obstacles (6 different ones can be used): 12 pixels wide, and 24 pixels high
 
 to alter pencil size in the gimp to one pixel use the "[" / "]" keys
 
