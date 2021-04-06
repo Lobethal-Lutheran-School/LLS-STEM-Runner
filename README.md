@@ -8,6 +8,7 @@ This work builds on the excellent work of https://dragaosemchama.com/en/2017/01/
 
 ![Image](images/LLS-logo-on-screen.jpg)
 
+
 Improvements thus far include
 
  1) changes to the code to allow it to work on T4 v2 component testers
@@ -138,4 +139,7 @@ make program
 
 You may have to edit the Makefile for your programmer if it something other than a usbasp on /dev/ttyACM0
 
+Here's the pinout for the ICSP connections on the LCR-T4 v2 board
+
+![Image](images/ICSP-pinout-LCR-T4-v2.jpg]
 
