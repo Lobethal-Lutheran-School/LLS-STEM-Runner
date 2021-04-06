@@ -126,7 +126,7 @@ write_firmware.sh
 
 utility.
 
-If you unsure which version of the component tester you have bought, you should back up the firmware first, then try to install the program code and eeprom code for the various versions found at https://github.com/Mikrocontroller-net/transistortester/ in turn, seeing which version works.
+If you are unsure which version of the component tester you have bought, you should back up the firmware first, then try to install the program code and eeprom code for the various versions found at https://github.com/Mikrocontroller-net/transistortester/ in turn, seeing which version works.
 
 Once you figure out which firmware works on your board, you will know which board revision you have, and can modify the code to reflect any differences in the circuit.
 
@@ -137,7 +137,9 @@ make
 make program
 ```
 
-You may have to edit the Makefile for your programmer if it something other than a usbasp on /dev/ttyACM0
+You may have to edit the Makefile for your programmer if it something other than a usbasp on /dev/ttyACM0a
+
+To restore component testing functionality, you will need to program the tester with its original firmware, or use a compatible (and pprobably more fully featured) version from the mikrocontroller-net repository.
 
 Here's the pinout for the ICSP connections on the LCR-T4 v2 board
 
