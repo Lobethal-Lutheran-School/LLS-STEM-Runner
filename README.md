@@ -141,5 +141,5 @@ You may have to edit the Makefile for your programmer if it something other than
 
 Here's the pinout for the ICSP connections on the LCR-T4 v2 board
 
-![Image](images/ICSP-pinout-LCR-T4-v2.jpg]
+![Image](images/ICSP-pinout-LCR-T4-v2.jpg)
 
