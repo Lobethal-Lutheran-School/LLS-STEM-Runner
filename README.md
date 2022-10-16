@@ -8,7 +8,6 @@ This work builds on the excellent work of https://dragaosemchama.com/en/2017/01/
 
 ![Image](images/LLS-logo-on-screen.jpg)
 
-
 Improvements thus far include
 
  1) changes to the code to allow it to work on T4 v2 component testers
@@ -58,41 +57,7 @@ A dog sprite:
 
 Tools for this are in sprite_tools
 
-It is recommended that sprites of the same height and width as the existing sprites are used until the code has been refactored further. Currently, the runner_sprites.h file has a dog option enabled, and the T-Rex commented out.
-
-In general, keep sprites to a multiple of 8 pixels in height. Width can be more arbitrary, but bigger sprites will slow things down if enormous.
-
-Ground dimensions: 512 pixels wide, and 8 pixels high
-
-Runner dimensions: 20 pixels wide, and 24 pixels high, and three different pixmaps are used to animate the runner, i.e. legs, or tail
-
-Small obstacles (6 different ones can be used): 8 pixels wide, and 16 pixels high
-
-Large obstacles (6 different ones can be used): 12 pixels wide, and 24 pixels high
-
-To create a sprite, use a graphics program such as the GIMP, and create an image with a black background of the desired dimensions in pixels, i.e. 8 wide and 16 high for a small obstacle.
-
-Use the pencil tool with a white foreground colour to draw the sprite. (Pro tip: the "[" and "]" keys in the GIMP change the brush size).
-
-Once the sprite has been drawn, go to the "->image->mode" menu and turn it into an indexed image with 2 colours.
-
-You can save your work at this point, but most importantly, the image needs to be exported as a "C header file" with a suitable name and default header file ending of ".h".
-
-So, export the image from the GIMP as a C header using the "->file->export as"  menu, and name the exported C header "something.h"
-
-In the sprite_tools directory, the simplest way to turn this into a sprite for use in the runner game is to run
-
-./convert_gimp_header.sh something.h
-
-this will produce a sprite header file called
-
-gimp_sprite.h
-
-which will then be displayed in the terminal as ASCII.
-
-Once the various sprites have been created, they can be merged into the "obstacle_sprites.h" or "runner_prites.h" files, after which the code can be built and flashed onto a component tester.  
-
-See also the README.md in the sprite_tools folder
+It is recommended that sprites of the same height and width are used until the code has been refactored further. Currently, the runner_sprites.h file has a dog option enabled, and the T-Rex commented out.
 
 ## Project details
 
@@ -126,9 +91,13 @@ write_firmware.sh
 
 utility.
 
-If you are unsure which version of the component tester you have bought, you should back up the firmware first, then try to install the program code and eeprom code for the various versions found at https://github.com/Mikrocontroller-net/transistortester/ in turn, seeing which version works.
+If you unsure which version of the component tester you have bought, you should back up the firmware first, then try to install the program code and eeprom code for the various versions found at https://github.com/Mikrocontroller-net/transistortester/ in turn, seeing which version works.
 
 Once you figure out which firmware works on your board, you will know which board revision you have, and can modify the code to reflect any differences in the circuit.
+
+You will need avrdude, gcc-avr and avr-libc installed, i.e.
+
+sudo apt install avr-libc
 
 To burn the T4v2 project to the board, connect your programmer and use:
 
@@ -137,11 +106,4 @@ make
 make program
 ```
 
-You may have to edit the Makefile for your programmer if it something other than a usbasp on /dev/ttyACM0a
-
-To restore component testing functionality, you will need to program the tester with its original firmware, or use a compatible (and pprobably more fully featured) version from the mikrocontroller-net repository.
-
-Here's the pinout for the ICSP connections on the LCR-T4 v2 board
-
-![Image](images/ICSP-pinout-LCR-T4-v2.jpg)
-
+You may have to edit the Makefile for your programmer if it something other than a usbasp on /dev/ttyACM0
